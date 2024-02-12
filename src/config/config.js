@@ -2,22 +2,21 @@ const dotenv = require('dotenv');
 const path = require('path');
 const Joi = require('joi');
 
-dotenv.config({ path: path.join(__dirname, '../../.env') });
+dotenv.config({ path: path.join(__dirname, `../../env/.env.${process.env.NODE_ENV}`) });
 
 const envVarsSchema = Joi.object()
   .keys({
     NODE_ENV: Joi.string().valid('production', 'development', 'test').required(),
     PORT: Joi.number().default(3000),
     MONGODB_URL: Joi.string().required().description('Mongo DB url'),
-    JWT_SECRET: Joi.string().required().description('JWT secret key'),
-    JWT_ACCESS_EXPIRATION_MINUTES: Joi.number().default(30).description('minutes after which access tokens expire'),
-    JWT_REFRESH_EXPIRATION_DAYS: Joi.number().default(30).description('days after which refresh tokens expire'),
-    JWT_RESET_PASSWORD_EXPIRATION_MINUTES: Joi.number()
-      .default(10)
-      .description('minutes after which reset password token expires'),
-    JWT_VERIFY_EMAIL_EXPIRATION_MINUTES: Joi.number()
-      .default(10)
-      .description('minutes after which verify email token expires'),
+    OAUTH_CLIENT_ID: Joi.string().required().description('client id of google oauth'),
+    OAUTH_CLIENT_SECRET: Joi.string().required().description('client secret of google oauth'),
+    OAUTH_CALLBACK_URI: Joi.string().required().description('redirect url after authentication with oauth'),
+    OAUTH_REDIRECT_SUCCESS_URI: Joi.string().required().description('redirect url after success authentication'),
+    OAUTH_REDIRECT_FAIL_URI: Joi.string().required().description('redirect url after failed authentication'),
+    CACHE_HOST: Joi.string().required().required().description('Cache host url'),
+    CACHE_PORT: Joi.number().required().description('port of the cacher server'),
+    CACHE_SECRET: Joi.string().required().description('secret key for session'),
     SMTP_HOST: Joi.string().description('server that will send the emails'),
     SMTP_PORT: Joi.number().description('port to connect to the email server'),
     SMTP_USERNAME: Joi.string().description('username for email server'),
@@ -43,12 +42,19 @@ module.exports = {
       useUnifiedTopology: true,
     },
   },
-  jwt: {
-    secret: envVars.JWT_SECRET,
-    accessExpirationMinutes: envVars.JWT_ACCESS_EXPIRATION_MINUTES,
-    refreshExpirationDays: envVars.JWT_REFRESH_EXPIRATION_DAYS,
-    resetPasswordExpirationMinutes: envVars.JWT_RESET_PASSWORD_EXPIRATION_MINUTES,
-    verifyEmailExpirationMinutes: envVars.JWT_VERIFY_EMAIL_EXPIRATION_MINUTES,
+  oauth: {
+    clientID: envVars.OAUTH_CLIENT_ID,
+    clientSecret: envVars.OAUTH_CLIENT_SECRET,
+    callbackURL: envVars.OAUTH_CALLBACK_URI,
+    redirectUrls: {
+      successRedirect: envVars.OAUTH_REDIRECT_SUCCESS_URI,
+      failureRedirect: envVars.OAUTH_REDIRECT_FAIL_URI,
+    },
+  },
+  cache: {
+    host: envVars.CACHE_HOST,
+    port: envVars.CACHE_PORT,
+    secret: envVars.CACHE_SECRET,
   },
   email: {
     smtp: {
