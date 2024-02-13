@@ -1,0 +1,40 @@
+components:
+  responses:
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 401
+            message: Please authenticate
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 403
+            message: Forbidden
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 404
+            message: Not found
+
+  securitySchemes:
+    oAuthSample:
+      type: oauth2
+      description: This API uses OAuth 2.0 with authorization code flow
+      flows:
+        authorizationCode:
+          authorizationUrl: /v1/auth/google
+          scopes:
+            profile: profile of user
+            email: email of user
