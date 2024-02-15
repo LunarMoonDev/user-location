@@ -17,7 +17,7 @@ const verifyFunc = async (req, accessToken, refreshTokens, params, profile, cb) 
   const user = {
     firstName: profile.name.givenName,
     lastName: profile.name.familyName,
-    role: roleNames.user,
+    role: 'user',
     account: {
       provider: providerNames.GOOGLE,
       subject: profile.id,

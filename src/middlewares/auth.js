@@ -1,4 +1,3 @@
-const passport = require('passport');
 const httpStatus = require('http-status');
 const moment = require('moment');
 const { google } = require('googleapis');
@@ -27,8 +26,8 @@ const refreshCallback = (req, resolve, reject) => async (err, tokens) => {
 
 const refresh = async (req, res, next) => {
   // session expire is the master lifespan of an authentication flow
-  const isAuthenticated = !req.user || !req.session || !req.session.passport || !req.session.passport.user;
-  if (isAuthenticated) {
+  const isNotAuthenticated = !req.user || !req.session || !req.session.passport || !req.session.passport.user;
+  if (isNotAuthenticated) {
     return next(new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate'));
   }
 
@@ -48,31 +47,24 @@ const refresh = async (req, res, next) => {
   next();
 };
 
-const verifyCallback = (req, resolve, reject, requiredRights) => async (err, user, info) => {
-  if (err || info || !user) {
-    return reject(new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate'));
-  }
-  req.user = user;
-
-  if (requiredRights.length) {
-    const userRights = roleRights.get(user.role);
-    const hasRequiredRights = requiredRights.every((requiredRight) => userRights.includes(requiredRight));
-    if (!hasRequiredRights && req.params.userId !== user.id) {
-      return reject(new ApiError(httpStatus.FORBIDDEN, 'Forbidden'));
-    }
-  }
-
-  resolve();
-};
-
 const auth =
   (...requiredRights) =>
   async (req, res, next) => {
-    return new Promise((resolve, reject) => {
-      passport.authenticate('jwt', { session: false }, verifyCallback(req, resolve, reject, requiredRights))(req, res, next);
-    })
-      .then(() => next())
-      .catch((err) => next(err));
+    const isNotAuthenticated = !req.user || !req.session || !req.session.passport || !req.session.passport.user;
+    if (isNotAuthenticated) {
+      return next(new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate'));
+    }
+
+    const { user } = req;
+    if (requiredRights.length) {
+      const userRights = roleRights.get(user.role);
+      const hasRequiredRights = requiredRights.every((requiredRight) => userRights.includes(requiredRight));
+      if (!hasRequiredRights) {
+        return next(new ApiError(httpStatus.FORBIDDEN, 'Forbidden'));
+      }
+    }
+
+    next();
   };
 
 module.exports = {

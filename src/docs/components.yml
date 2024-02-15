@@ -1,4 +1,25 @@
 components:
+  schemas:
+    Location:
+      type: object
+      properties:
+        id:
+          type: string
+        city:
+          type: string
+        pop:
+          type: number
+        state:
+          type: string
+        loc:
+          type: [number]
+      examples:
+        id: 5ebac534954b54139806c112
+        city: quezon
+        pop: 1103
+        state: manila
+        loc: [90, -30]
+
   responses:
     Unauthorized:
       description: Unauthorized
