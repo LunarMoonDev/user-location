@@ -10,6 +10,7 @@ const accountSchema = mongoose.Schema({
     type: String,
     enum: providers,
     default: providerNames.GOOGLE,
+    required: true,
   },
   subject: {
     type: String,
