@@ -1,15 +1,26 @@
-const faker = require('faker');
+const { faker } = require('@faker-js/faker');
 const { User } = require('../../../src/models');
+const { providerNames } = require('../../../src/config/providers');
 
-describe('User model', () => {
+describe('Model: User', () => {
   describe('User validation', () => {
     let newUser;
+    let newAccount;
+
     beforeEach(() => {
+      newAccount = {
+        provider: providerNames.GOOGLE,
+        subject: '104604077708513089592',
+        accessToken: faker.string.alphanumeric(),
+        refreshToken: faker.string.alphanumeric({ length: 218 }),
+        expireDate: 1707912638,
+      };
+
       newUser = {
-        name: faker.name.findName(),
-        email: faker.internet.email().toLowerCase(),
-        password: 'password1',
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
         role: 'user',
+        account: newAccount,
       };
     });
 
@@ -17,41 +28,31 @@ describe('User model', () => {
       await expect(new User(newUser).validate()).resolves.toBeUndefined();
     });
 
-    test('should throw a validation error if email is invalid', async () => {
-      newUser.email = 'invalidEmail';
-      await expect(new User(newUser).validate()).rejects.toThrow();
-    });
-
-    test('should throw a validation error if password length is less than 8 characters', async () => {
-      newUser.password = 'passwo1';
-      await expect(new User(newUser).validate()).rejects.toThrow();
-    });
-
-    test('should throw a validation error if password does not contain numbers', async () => {
-      newUser.password = 'password';
-      await expect(new User(newUser).validate()).rejects.toThrow();
-    });
-
-    test('should throw a validation error if password does not contain letters', async () => {
-      newUser.password = '11111111';
-      await expect(new User(newUser).validate()).rejects.toThrow();
-    });
-
-    test('should throw a validation error if role is unknown', async () => {
+    test('should throw a validation error if role is invalid', async () => {
       newUser.role = 'invalid';
       await expect(new User(newUser).validate()).rejects.toThrow();
     });
   });
 
   describe('User toJSON()', () => {
-    test('should not return user password when toJSON is called', () => {
-      const newUser = {
-        name: faker.name.findName(),
-        email: faker.internet.email().toLowerCase(),
-        password: 'password1',
+    test('should not return user with createdAt/ updatedAt when toJSON is called', () => {
+      const newUser2 = {
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
         role: 'user',
+        account: {
+          provider: providerNames.GOOGLE,
+          subject: '104604077708513089592',
+          accessToken: faker.string.alphanumeric({ length: 218 }),
+          refreshToken: faker.string.alphanumeric({ length: 218 }),
+          expireData: 1707912638,
+        },
+        createdAt: '02-01-2023',
+        updatedAt: '02-01-2024',
       };
-      expect(new User(newUser).toJSON()).not.toHaveProperty('password');
+
+      expect(new User(newUser2).toJSON()).not.toHaveProperty('createdAt');
+      expect(new User(newUser2).toJSON()).not.toHaveProperty('updatedAt');
     });
   });
 });

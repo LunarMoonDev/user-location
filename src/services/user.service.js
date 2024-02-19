@@ -30,19 +30,8 @@ const findUserAndUpdate = async (provider, subject, user) => {
   return User.findOneAndUpdate({ 'account.provider': provider, 'account.subject': subject }, user);
 };
 
-/**
- * Finds a user
- * @param {*} provider - provider for the oauth, default: google
- * @param {*} subject - id of the user given by provider
- * @returns {Promise<User>}
- */
-const findUser = async (provider, subject) => {
-  return User.findOne({ 'account.provider': provider, 'account.subject': subject });
-};
-
 module.exports = {
   createUser,
   getUserByProviderAndSubject,
   findUserAndUpdate,
-  findUser,
 };

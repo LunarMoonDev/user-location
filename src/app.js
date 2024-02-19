@@ -76,7 +76,7 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser((condition, done) => {
   userService
-    .findUser(condition.provider, condition.subject)
+    .getUserByProviderAndSubject(condition.provider, condition.subject)
     .then((user) => done(null, user))
     .catch((error) => done(error));
 });

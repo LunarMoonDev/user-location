@@ -3,8 +3,8 @@ const httpStatus = require('http-status');
 const { authService } = require('../services');
 const config = require('./config');
 const { providerNames } = require('./providers');
-const { roleNames } = require('./roles');
 const ApiError = require('../utils/ApiError');
+const pick = require('../utils/pick');
 
 const oauthConfig = {
   ...config.oauth,
@@ -28,7 +28,9 @@ const verifyFunc = async (req, accessToken, refreshTokens, params, profile, cb) 
   };
 
   try {
-    await authService.createOrUpdateUserTokens(user, providerNames.GOOGLE, profile.id, { accessToken, refreshTokens });
+    const filter = pick(user.account, ['provider', 'subject']);
+    const tokens = { accessToken, refreshTokens };
+    await authService.createOrUpdateUserTokens(user, filter, tokens);
   } catch (error) {
     cb(new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate'));
   }

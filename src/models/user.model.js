@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { toJSON } = require('./plugins');
 const accountSchema = require('./account.model');
-const { roles, roleNames } = require('../config/roles');
+const { roles } = require('../config/roles');
 
 const userSchema = mongoose.Schema(
   {
@@ -20,7 +20,10 @@ const userSchema = mongoose.Schema(
       enum: roles,
       required: true,
     },
-    account: accountSchema,
+    account: {
+      type: accountSchema,
+      required: true,
+    },
   },
   {
     timestamps: true,
