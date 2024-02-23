@@ -39,7 +39,7 @@ const locationSchema = mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 locationSchema.plugin(toJSON);
