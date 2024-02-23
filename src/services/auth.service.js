@@ -7,7 +7,7 @@ const userService = require('./user.service');
  * @param {*} subject - id of the user given by provider
  * @param {*} tokens - new tokens
  */
-const createOrUpdateUserTokens = async (filter, user, tokens) => {
+const createOrUpdateUserTokens = async (user, filter, tokens) => {
   const { provider, subject } = filter;
   const { accessToken } = tokens;
   const currUser = await userService.getUserByProviderAndSubject(provider, subject);
