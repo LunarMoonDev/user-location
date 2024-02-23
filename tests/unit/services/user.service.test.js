@@ -68,7 +68,7 @@ describe('Service: userService', () => {
     test('should return a user object when it exists in database', async () => {
       const mockFindOne = jest.spyOn(User, 'findOne').mockImplementationOnce(() => Promise.resolve(newUser));
       await expect(userService.getUserByProviderAndSubject(newAccount.provider, newAccount.subject)).resolves.toStrictEqual(
-        newUser
+        newUser,
       );
       await expect(mockFindOne).toHaveBeenCalled();
       await expect(mockFindOne.mock.calls[0][0]).toStrictEqual(condition);
@@ -78,7 +78,7 @@ describe('Service: userService', () => {
       condition['account.provider'] = providerNames.FACEBOOK;
       const mockFindOne = jest.spyOn(User, 'findOne').mockImplementationOnce(() => Promise.resolve([]));
       await expect(
-        userService.getUserByProviderAndSubject(providerNames.FACEBOOK, newAccount.subject)
+        userService.getUserByProviderAndSubject(providerNames.FACEBOOK, newAccount.subject),
       ).resolves.toStrictEqual([]);
       await expect(mockFindOne).toHaveBeenCalled();
       await expect(mockFindOne.mock.calls[0][0]).toStrictEqual(condition);
@@ -88,7 +88,7 @@ describe('Service: userService', () => {
       const error = new ApiError(httpStatus.NOT_ACCEPTABLE, 'unacceptable');
       const mockFindOne = jest.spyOn(User, 'findOne').mockImplementationOnce(() => Promise.reject(error));
       await expect(userService.getUserByProviderAndSubject(newAccount.provider, newAccount.subject)).rejects.toStrictEqual(
-        error
+        error,
       );
       await expect(mockFindOne).toHaveBeenCalled();
       await expect(mockFindOne.mock.calls[0][0]).toStrictEqual(condition);
@@ -126,7 +126,7 @@ describe('Service: userService', () => {
         .spyOn(User, 'findOneAndUpdate')
         .mockImplementationOnce(() => Promise.resolve(newUser));
       await expect(userService.findUserAndUpdate(providerNames.GOOGLE, newAccount.subject, newUser)).resolves.toStrictEqual(
-        newUser
+        newUser,
       );
       await expect(mockFindOneAndUpdate).toHaveBeenCalled();
     });
@@ -134,7 +134,7 @@ describe('Service: userService', () => {
     test("should return empty when it doesn't in database", async () => {
       const mockFindOneAndUpdate = jest.spyOn(User, 'findOneAndUpdate').mockImplementationOnce(() => Promise.resolve([]));
       await expect(userService.findUserAndUpdate(providerNames.GOOGLE, newAccount.subject, newUser)).resolves.toStrictEqual(
-        []
+        [],
       );
       await expect(mockFindOneAndUpdate).toHaveBeenCalled();
     });
@@ -143,7 +143,7 @@ describe('Service: userService', () => {
       const error = new ApiError(httpStatus.NOT_ACCEPTABLE, 'unacceptable');
       const mockFindOneAndUpdate = jest.spyOn(User, 'findOneAndUpdate').mockImplementationOnce(() => Promise.reject(error));
       await expect(userService.findUserAndUpdate(providerNames.GOOGLE, newAccount.subject, newUser)).rejects.toStrictEqual(
-        error
+        error,
       );
       await expect(mockFindOneAndUpdate).toHaveBeenCalled();
     });
