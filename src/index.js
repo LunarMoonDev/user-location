@@ -2,14 +2,49 @@ const mongoose = require('mongoose');
 const app = require('./app');
 const config = require('./config/config');
 const logger = require('./config/logger');
+const { redis } = require('./config/cache');
+
+const servers = [];
+servers.push(
+  new Promise((resolve, reject) => {
+    mongoose
+      .connect(config.mongoose.url, config.mongoose.options)
+      .then(() => {
+        logger.info('Connected to MongoDB');
+        resolve();
+      })
+      .catch((error) => {
+        logger.error('Could not establish a connection with MongoDB', error);
+        reject(error);
+      });
+  }),
+);
+
+servers.push(
+  new Promise((resolve, reject) => {
+    redis
+      .connect()
+      .then(() => {
+        logger.info('Connected to Redis');
+        resolve();
+      })
+      .catch((error) => {
+        logger.error('Could not establish a connection with Redis', error);
+        reject(error);
+      });
+  }),
+);
 
 let server;
-mongoose.connect(config.mongoose.url, config.mongoose.options).then(() => {
-  logger.info('Connected to MongoDB');
-  server = app.listen(config.port, () => {
-    logger.info(`Listening to port ${config.port}`);
+Promise.all(servers)
+  .then(() => {
+    server = app.listen(config.port, () => {
+      logger.info(`Listening to port ${config.port}`);
+    });
+  })
+  .catch(() => {
+    logger.error('Could not start server');
   });
-});
 
 const exitHandler = () => {
   if (server) {
