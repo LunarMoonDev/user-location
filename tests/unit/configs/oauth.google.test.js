@@ -40,7 +40,7 @@ describe('Config: oauth.google', () => {
         .mockImplementationOnce(() => Promise.resolve());
 
       await expect(
-        auth.verifyFunc(null, tokens.accessToken, tokens.refreshTokens, params, profile, cb),
+        auth.verifyFunc(null, tokens.accessToken, tokens.refreshTokens, params, profile, cb)
       ).resolves.toBeUndefined();
       await expect(mockCreateOrUpdateUserTokens).toHaveBeenCalled();
       await expect(cb).toHaveBeenCalled();
@@ -60,7 +60,7 @@ describe('Config: oauth.google', () => {
         .mockImplementationOnce(() => Promise.reject(error));
 
       await expect(
-        auth.verifyFunc(null, tokens.accessToken, tokens.refreshTokens, params, profile, cb),
+        auth.verifyFunc(null, tokens.accessToken, tokens.refreshTokens, params, profile, cb)
       ).resolves.toBeUndefined();
       await expect(mockCreateOrUpdateUserTokens).toHaveBeenCalled();
       await expect(cb).toHaveBeenCalled();

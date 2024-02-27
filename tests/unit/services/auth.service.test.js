@@ -121,7 +121,7 @@ describe('Service: authService', () => {
         .spyOn(userService, 'findUserAndUpdate')
         .mockImplementationOnce(() => Promise.reject(error));
       await expect(authService.updateUserTokens(newUser, newAccount.provider, newAccount.subject)).rejects.toStrictEqual(
-        error,
+        error
       );
       await expect(mockFindUserAndUpdate).toHaveBeenCalled();
     });

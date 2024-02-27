@@ -17,7 +17,7 @@ servers.push(
         logger.error('Could not establish a connection with MongoDB', error);
         reject(error);
       });
-  }),
+  })
 );
 
 servers.push(
@@ -32,7 +32,7 @@ servers.push(
         logger.error('Could not establish a connection with Redis', error);
         reject(error);
       });
-  }),
+  })
 );
 
 let server;
