@@ -19,7 +19,13 @@ const refreshCallback = (req, resolve, reject) => async (err, tokens) => {
     expireDate: tokens.expiry_date,
   };
   const { account } = req.user;
-  await authService.updateUserTokens(req.user, account.provider, account.subject);
+  const filter = {
+    email: req.user.email,
+    subject: account.subject,
+    provider: account.provider,
+  };
+
+  await authService.updateUserTokens(filter, req.user);
 
   resolve();
 };

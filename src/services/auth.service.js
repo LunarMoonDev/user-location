@@ -14,7 +14,7 @@ const createOrUpdateUserTokens = async (user, filter, tokens) => {
   if (!currUser) {
     await userService.createUser(user);
   } else if (currUser.account.accessToken !== accessToken) {
-    await userService.findUserAndUpdate(provider, subject, user);
+    await userService.findUserAndUpdate(filter, user);
   }
 };
 
@@ -24,8 +24,8 @@ const createOrUpdateUserTokens = async (user, filter, tokens) => {
  * @param {*} provider - provider for the oauth, default: google
  * @param {*} subject - id of the user given by the provider
  */
-const updateUserTokens = async (user, provider, subject) => {
-  await userService.findUserAndUpdate(provider, subject, user);
+const updateUserTokens = async (filter, user) => {
+  await userService.findUserAndUpdate(filter, user);
 };
 
 module.exports = {
