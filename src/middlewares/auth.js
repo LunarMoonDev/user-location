@@ -26,12 +26,12 @@ const refreshCallback = (req, resolve, reject) => async (err, tokens) => {
 
 const refresh = async (req, res, next) => {
   // session expire is the master lifespan of an authentication flow
-  const isNotAuthenticated = !req.user || !req.session || !req.session.passport || !req.session.passport.user;
+  const isNotAuthenticated = !req.user;
   if (isNotAuthenticated) {
     return next(new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate'));
   }
 
-  if (moment().subtract(req.user.account.expireDate, 's').format('X') > -300) {
+  if (moment().subtract(req.user.account.expireDate, 's').format('X') < -300) {
     oauth2Client.setCredentials({
       access_token: req.user.account.accessToken,
       refresh_token: req.user.account.refreshToken,
@@ -50,7 +50,8 @@ const refresh = async (req, res, next) => {
 const auth =
   (...requiredRights) =>
   async (req, res, next) => {
-    const isNotAuthenticated = !req.user || !req.session || !req.session.passport || !req.session.passport.user;
+    const isNotAuthenticated = !req.user;
+
     if (isNotAuthenticated) {
       return next(new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate'));
     }
@@ -70,4 +71,5 @@ const auth =
 module.exports = {
   auth,
   refresh,
+  refreshCallback,
 };
