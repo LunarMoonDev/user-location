@@ -28,9 +28,11 @@ describe('Config: oauth.google', () => {
           givenName: faker.person.firstName(),
           familyName: faker.person.lastName(),
         },
+        _json: {
+          email: faker.internet.email(),
+        },
         id: faker.string.alphanumeric({ length: 24 }),
       };
-
       cb = jest.fn(() => {});
     });
 
@@ -46,6 +48,7 @@ describe('Config: oauth.google', () => {
       await expect(cb).toHaveBeenCalled();
       await expect(new User(mockCreateOrUpdateUserTokens.mock.calls[0][0]).validate()).resolves.toBeUndefined();
       await expect(mockCreateOrUpdateUserTokens.mock.calls[0][1]).toStrictEqual({
+        email: profile._json.email,
         provider: providerNames.GOOGLE,
         subject: profile.id,
       });
@@ -66,6 +69,7 @@ describe('Config: oauth.google', () => {
       await expect(cb).toHaveBeenCalled();
       await expect(new User(mockCreateOrUpdateUserTokens.mock.calls[0][0]).validate()).resolves.toBeUndefined();
       await expect(mockCreateOrUpdateUserTokens.mock.calls[0][1]).toStrictEqual({
+        email: profile._json.email,
         provider: providerNames.GOOGLE,
         subject: profile.id,
       });
