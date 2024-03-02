@@ -1,9 +1,9 @@
 const { faker } = require('@faker-js/faker');
 const mongoose = require('mongoose');
+const httpStatus = require('http-status');
 const { User } = require('../../../src/models');
 const { providerNames } = require('../../../src/config/providers');
 const ApiError = require('../../../src/utils/ApiError');
-const httpStatus = require('http-status');
 
 describe('Model: User', () => {
   describe('User validation', () => {

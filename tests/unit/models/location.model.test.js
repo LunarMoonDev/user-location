@@ -1,7 +1,7 @@
 const { faker } = require('@faker-js/faker');
+const httpStatus = require('http-status');
 const { Location } = require('../../../src/models');
 const ApiError = require('../../../src/utils/ApiError');
-const httpStatus = require('http-status');
 
 describe('Model: Location', () => {
   describe('Location validation', () => {
