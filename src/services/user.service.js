@@ -1,4 +1,6 @@
+const httpStatus = require('http-status');
 const { User } = require('../models');
+const ApiError = require('../utils/ApiError');
 
 /**
  * Create a user
@@ -6,6 +8,9 @@ const { User } = require('../models');
  * @returns {Promise<User>}
  */
 const createUser = async (userBody) => {
+  if (await User.doesEmailExist(userBody.email)) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
+  }
   return User.create(userBody);
 };
 
@@ -26,8 +31,12 @@ const getUserByProviderAndSubject = async (provider, subject) => {
  * @param {*} user - user object
  * @returns {Promise<User>}
  */
-const findUserAndUpdate = async (provider, subject, user) => {
-  return User.findOneAndUpdate({ 'account.provider': provider, 'account.subject': subject }, user);
+const findUserAndUpdate = async (filter, user) => {
+  const { provider, subject, email } = filter;
+  if (!(await User.doesEmailExist(email))) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User does not exist');
+  }
+  return User.findOneAndUpdate({ 'account.provider': provider, 'account.subject': subject, email }, user);
 };
 
 module.exports = {
