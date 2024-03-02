@@ -38,7 +38,7 @@ app.use(
     cookie: {
       maxAge: 1000 * 60 * 10,
     },
-  }),
+  })
 );
 
 // set security HTTP headers

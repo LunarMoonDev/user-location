@@ -19,6 +19,30 @@ components:
         pop: 1103
         state: manila
         loc: [90, -30]
+    
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        firstname:
+          type: string
+        lastname:
+          type: string
+        email:
+          type: string
+          format: email
+        location:
+          schema:
+            $ref: '#/components/schemas/Location'
+    
+    Error:
+      type: object
+      properties:
+        code:
+          type: number
+        message:
+          type: string
 
   responses:
     Unauthorized:

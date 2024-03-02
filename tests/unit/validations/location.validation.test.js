@@ -6,17 +6,10 @@ const pick = require('../../../src/utils/pick');
 
 describe('Validation: locationValidation', () => {
   let mockReq;
-  let mockRes;
-  let mockNext;
   let newLocation;
 
   beforeEach(() => {
     mockReq = httpMocks.createRequest();
-    mockRes = httpMocks.createResponse();
-
-    mockNext = jest.fn((x) => x);
-    mockRes.status = jest.fn(() => mockRes);
-    mockRes.send = jest.fn((x) => x);
 
     newLocation = {
       city: faker.location.city(),

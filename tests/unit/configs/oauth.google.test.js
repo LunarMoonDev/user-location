@@ -28,9 +28,11 @@ describe('Config: oauth.google', () => {
           givenName: faker.person.firstName(),
           familyName: faker.person.lastName(),
         },
+        _json: {
+          email: faker.internet.email(),
+        },
         id: faker.string.alphanumeric({ length: 24 }),
       };
-
       cb = jest.fn(() => {});
     });
 
@@ -40,12 +42,13 @@ describe('Config: oauth.google', () => {
         .mockImplementationOnce(() => Promise.resolve());
 
       await expect(
-        auth.verifyFunc(null, tokens.accessToken, tokens.refreshTokens, params, profile, cb),
+        auth.verifyFunc(null, tokens.accessToken, tokens.refreshTokens, params, profile, cb)
       ).resolves.toBeUndefined();
       await expect(mockCreateOrUpdateUserTokens).toHaveBeenCalled();
       await expect(cb).toHaveBeenCalled();
       await expect(new User(mockCreateOrUpdateUserTokens.mock.calls[0][0]).validate()).resolves.toBeUndefined();
       await expect(mockCreateOrUpdateUserTokens.mock.calls[0][1]).toStrictEqual({
+        email: profile._json.email,
         provider: providerNames.GOOGLE,
         subject: profile.id,
       });
@@ -60,12 +63,13 @@ describe('Config: oauth.google', () => {
         .mockImplementationOnce(() => Promise.reject(error));
 
       await expect(
-        auth.verifyFunc(null, tokens.accessToken, tokens.refreshTokens, params, profile, cb),
+        auth.verifyFunc(null, tokens.accessToken, tokens.refreshTokens, params, profile, cb)
       ).resolves.toBeUndefined();
       await expect(mockCreateOrUpdateUserTokens).toHaveBeenCalled();
       await expect(cb).toHaveBeenCalled();
       await expect(new User(mockCreateOrUpdateUserTokens.mock.calls[0][0]).validate()).resolves.toBeUndefined();
       await expect(mockCreateOrUpdateUserTokens.mock.calls[0][1]).toStrictEqual({
+        email: profile._json.email,
         provider: providerNames.GOOGLE,
         subject: profile.id,
       });

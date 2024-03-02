@@ -18,6 +18,7 @@ const verifyFunc = async (req, accessToken, refreshTokens, params, profile, cb) 
     firstName: profile.name.givenName,
     lastName: profile.name.familyName,
     role: 'user',
+    email: profile._json.email,
     account: {
       provider: providerNames.GOOGLE,
       subject: profile.id,
@@ -29,6 +30,7 @@ const verifyFunc = async (req, accessToken, refreshTokens, params, profile, cb) 
 
   try {
     const filter = pick(user.account, ['provider', 'subject']);
+    filter.email = user.email;
     const tokens = { accessToken, refreshTokens };
     await authService.createOrUpdateUserTokens(user, filter, tokens);
   } catch (error) {

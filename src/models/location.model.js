@@ -45,6 +45,17 @@ const locationSchema = mongoose.Schema(
 locationSchema.plugin(toJSON);
 
 /**
+ * Check if location already exist
+ * @param {string} city city of the location
+ * @param {string} state state of the location
+ * @returns {Promise<boolean>}
+ */
+locationSchema.statics.doesLocationExist = async function (city, state) {
+  const loc = await this.findOne({ city, state });
+  return !!loc;
+};
+
+/**
  * @typedef Location
  */
 const Location = mongoose.model('Location', locationSchema);
