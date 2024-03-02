@@ -71,6 +71,34 @@ describe('Service: authService', () => {
       await expect(mockFindUserAndUpdate).toHaveBeenCalled();
     });
 
+    test('should update only the tokens of the user', async () => {
+      const userDup = JSON.parse(JSON.stringify(newUser));
+      const mockGetUserByProviderAndSubject = jest
+        .spyOn(userService, 'getUserByProviderAndSubject')
+        .mockImplementationOnce(() => Promise.resolve(userDup));
+      const mockCreateUser = jest.spyOn(userService, 'createUser').mockImplementationOnce(() => Promise.resolve());
+      const mockFindUserAndUpdate = jest
+        .spyOn(userService, 'findUserAndUpdate')
+        .mockImplementationOnce(() => Promise.resolve());
+
+      // creating new user with new access token
+      tokens.accessToken = faker.string.alphanumeric({ length: 218 });
+      newUser.account.accessToken = tokens.accessToken;
+
+      // changing newUser attribute
+      newUser.role = 'admin';
+
+      // creating expected
+      const expected = JSON.parse(JSON.stringify(userDup));
+      expected.account = newUser.account;
+
+      await expect(authService.createOrUpdateUserTokens(newUser, filter, tokens)).resolves.toBeUndefined();
+      await expect(mockGetUserByProviderAndSubject).toHaveBeenCalled();
+      await expect(mockCreateUser).not.toHaveBeenCalled();
+      await expect(mockFindUserAndUpdate).toHaveBeenCalled();
+      await expect(mockFindUserAndUpdate.mock.calls[0][1]).toStrictEqual(expected);
+    });
+
     test('should not do anything when user exist and accessToken is the same', async () => {
       const mockGetUserByProviderAndSubject = jest
         .spyOn(userService, 'getUserByProviderAndSubject')
