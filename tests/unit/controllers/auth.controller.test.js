@@ -13,6 +13,7 @@ describe('Controller: authController', () => {
 
     mockReq.logout = jest.fn((x) => x);
     mockNext = jest.fn((x) => x);
+    mockRes.status = jest.fn(() => mockRes);
     mockRes.send = jest.fn((x) => x);
   });
 
