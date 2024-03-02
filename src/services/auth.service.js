@@ -14,7 +14,8 @@ const createOrUpdateUserTokens = async (user, filter, tokens) => {
   if (!currUser) {
     await userService.createUser(user);
   } else if (currUser.account.accessToken !== accessToken) {
-    await userService.findUserAndUpdate(filter, user);
+    currUser.account = user.account;
+    await userService.findUserAndUpdate(filter, currUser);
   }
 };
 
