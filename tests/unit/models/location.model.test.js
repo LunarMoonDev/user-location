@@ -1,5 +1,7 @@
 const { faker } = require('@faker-js/faker');
 const { Location } = require('../../../src/models');
+const ApiError = require('../../../src/utils/ApiError');
+const httpStatus = require('http-status');
 
 describe('Model: Location', () => {
   describe('Location validation', () => {
@@ -42,6 +44,43 @@ describe('Model: Location', () => {
 
       expect(new Location(newLocation2).toJSON()).not.toHaveProperty('createdAt');
       expect(new Location(newLocation2).toJSON()).not.toHaveProperty('updatedAt');
+    });
+  });
+
+  describe('Location doesLocationExist', () => {
+    let city;
+    let state;
+    let newLocation;
+
+    beforeEach(() => {
+      city = faker.location.city;
+      state = faker.location.state;
+
+      newLocation = {
+        city,
+        pop: 123,
+        state,
+        loc: [0.21, 23.4],
+      };
+    });
+
+    test('should return true when location exist', async () => {
+      const mockFindOne = jest.spyOn(Location, 'findOne').mockImplementationOnce(() => Promise.resolve(newLocation));
+      await expect(Location.doesLocationExist(city, state)).resolves.toEqual(true);
+      await expect(mockFindOne).toHaveBeenCalled();
+    });
+
+    test('should return false when location exist', async () => {
+      const mockFindOne = jest.spyOn(Location, 'findOne').mockImplementationOnce(() => Promise.resolve(null));
+      await expect(Location.doesLocationExist(city, state)).resolves.toEqual(false);
+      await expect(mockFindOne).toHaveBeenCalled();
+    });
+
+    test('should throw error when findOne throws an error', async () => {
+      const error = new ApiError(httpStatus.BAD_REQUEST, 'something happened');
+      const mockFindOne = jest.spyOn(Location, 'findOne').mockImplementationOnce(() => Promise.reject(error));
+      await expect(Location.doesLocationExist(city, state)).rejects.toThrow(error);
+      await expect(mockFindOne).toHaveBeenCalled();
     });
   });
 });
