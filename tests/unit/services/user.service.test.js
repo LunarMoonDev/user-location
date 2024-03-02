@@ -25,20 +25,35 @@ describe('Service: userService', () => {
         lastName: faker.person.lastName(),
         role: 'user',
         account: newAccount,
+        email: faker.internet.email(),
       };
     });
 
     test('should create when the given user is valid', async () => {
       const mockCreateUser = jest.spyOn(User, 'create').mockImplementationOnce(() => Promise.resolve(newUser));
+      const mockDoesEmailExist = jest.spyOn(User, 'doesEmailExist').mockImplementationOnce(() => Promise.resolve(false));
       await expect(userService.createUser(newUser)).resolves.toStrictEqual(newUser);
       await expect(mockCreateUser).toHaveBeenCalled();
+      await expect(mockDoesEmailExist).toHaveBeenCalled();
+      await expect(mockDoesEmailExist.mock.calls[0][0]).toStrictEqual(newUser.email);
     });
 
     test('should throw an error when error throws an error', async () => {
       const error = new ApiError(httpStatus.NOT_ACCEPTABLE, 'unacceptable');
       const mockCreateUser = jest.spyOn(User, 'create').mockImplementationOnce(() => Promise.reject(error));
+      const mockDoesEmailExist = jest.spyOn(User, 'doesEmailExist').mockImplementationOnce(() => Promise.resolve(false));
       await expect(userService.createUser(newUser)).rejects.toStrictEqual(error);
       await expect(mockCreateUser).toHaveBeenCalled();
+      await expect(mockDoesEmailExist).toHaveBeenCalled();
+    });
+
+    test('should email already exist when email exist in db', async () => {
+      const error = new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
+      const mockCreateUser = jest.spyOn(User, 'create').mockImplementationOnce(() => Promise.resolve(newUser));
+      const mockDoesEmailExist = jest.spyOn(User, 'doesEmailExist').mockImplementationOnce(() => Promise.resolve(true));
+      await expect(userService.createUser(newUser)).rejects.toThrow(error);
+      await expect(mockCreateUser).not.toHaveBeenCalled();
+      await expect(mockDoesEmailExist).toHaveBeenCalled();
     });
   });
 
@@ -57,6 +72,7 @@ describe('Service: userService', () => {
         lastName: faker.person.lastName(),
         role: 'user',
         account: newAccount,
+        email: faker.internet.email(),
       };
 
       condition = {
@@ -96,6 +112,8 @@ describe('Service: userService', () => {
   });
 
   describe('findUserAndUpdate method', () => {
+    let newFilter;
+
     beforeEach(() => {
       newAccount = {
         provider: providerNames.GOOGLE,
@@ -110,6 +128,7 @@ describe('Service: userService', () => {
         lastName: faker.person.lastName(),
         role: 'user',
         account: newAccount,
+        email: faker.internet.email(),
       };
 
       // update step
@@ -119,33 +138,49 @@ describe('Service: userService', () => {
         'account.provider': newAccount.provider,
         'account.subject': newAccount.subject,
       };
+
+      newFilter = {
+        provider: newAccount.provider,
+        subject: newAccount.subject,
+        email: newUser.email,
+      };
     });
 
     test('should return the updated user when it exist in database', async () => {
       const mockFindOneAndUpdate = jest
         .spyOn(User, 'findOneAndUpdate')
         .mockImplementationOnce(() => Promise.resolve(newUser));
-      await expect(userService.findUserAndUpdate(providerNames.GOOGLE, newAccount.subject, newUser)).resolves.toStrictEqual(
-        newUser
-      );
+      const mockDoesEmailExist = jest.spyOn(User, 'doesEmailExist').mockImplementationOnce(() => Promise.resolve(true));
+      await expect(userService.findUserAndUpdate(newFilter, newUser)).resolves.toStrictEqual(newUser);
       await expect(mockFindOneAndUpdate).toHaveBeenCalled();
+      await expect(mockDoesEmailExist).toHaveBeenCalled();
+      await expect(mockDoesEmailExist.mock.calls[0][0]).toStrictEqual(newUser.email);
     });
 
     test("should return empty when it doesn't in database", async () => {
       const mockFindOneAndUpdate = jest.spyOn(User, 'findOneAndUpdate').mockImplementationOnce(() => Promise.resolve([]));
-      await expect(userService.findUserAndUpdate(providerNames.GOOGLE, newAccount.subject, newUser)).resolves.toStrictEqual(
-        []
-      );
+      const mockDoesEmailExist = jest.spyOn(User, 'doesEmailExist').mockImplementationOnce(() => Promise.resolve(true));
+      await expect(userService.findUserAndUpdate(newFilter, newUser)).resolves.toStrictEqual([]);
+      await expect(mockDoesEmailExist).toHaveBeenCalled();
       await expect(mockFindOneAndUpdate).toHaveBeenCalled();
     });
 
     test('should throw an error when findOneAndUpdate throws an error', async () => {
       const error = new ApiError(httpStatus.NOT_ACCEPTABLE, 'unacceptable');
       const mockFindOneAndUpdate = jest.spyOn(User, 'findOneAndUpdate').mockImplementationOnce(() => Promise.reject(error));
-      await expect(userService.findUserAndUpdate(providerNames.GOOGLE, newAccount.subject, newUser)).rejects.toStrictEqual(
-        error
-      );
+      const mockDoesEmailExist = jest.spyOn(User, 'doesEmailExist').mockImplementationOnce(() => Promise.resolve(true));
+      await expect(userService.findUserAndUpdate(newFilter, newUser)).rejects.toThrow(error);
+      await expect(mockDoesEmailExist).toHaveBeenCalled();
       await expect(mockFindOneAndUpdate).toHaveBeenCalled();
+    });
+
+    test("should throw missing user when email doesn't exist in db", async () => {
+      const error = new ApiError(httpStatus.BAD_REQUEST, 'User does not exist');
+      const mockFindOneAndUpdate = jest.spyOn(User, 'findOneAndUpdate').mockImplementationOnce(() => Promise.resolve(null));
+      const mockDoesEmailExist = jest.spyOn(User, 'doesEmailExist').mockImplementationOnce(() => Promise.resolve(false));
+      await expect(userService.findUserAndUpdate(newFilter, newUser)).rejects.toThrow(error);
+      await expect(mockDoesEmailExist).toHaveBeenCalled();
+      await expect(mockFindOneAndUpdate).not.toHaveBeenCalled();
     });
   });
 });
