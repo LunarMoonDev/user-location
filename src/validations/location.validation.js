@@ -10,6 +10,17 @@ const createLocation = {
   }),
 };
 
+const getLocations = {
+  query: Joi.object().keys({
+    city: Joi.string(),
+    state: Joi.string(),
+    sortBy: Joi.string(),
+    limit: Joi.number().integer(),
+    page: Joi.number().integer(),
+  }),
+};
+
 module.exports = {
   createLocation,
+  getLocations,
 };

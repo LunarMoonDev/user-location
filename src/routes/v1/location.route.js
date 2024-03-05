@@ -7,6 +7,7 @@ const locationValidation = require('../../validations/location.validation');
 const router = express.Router();
 
 router.route('/').post(auth('manageLoc'), validate(locationValidation.createLocation), locationController.createLocation);
+router.route('/').get(auth('getLocs'), validate(locationValidation.getLocations), locationController.getLocations); // TODO: need docs
 
 module.exports = router;
 
@@ -62,6 +63,73 @@ module.exports = router;
  *           application/json:
  *             schema:
  *                $ref: '#/components/schemas/Location'
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ *       "403":
+ *         $ref: '#/components/responses/Forbidden'
+ *
+ *   get:
+ *     summary: Retrieve locations
+ *     description: API is paginated and any user can retrieve
+ *     tags: [Location]
+ *     security:
+ *       - oAuthSample:
+ *          - profile
+ *          - email
+ *     parameters:
+ *       - in: query
+ *         name: city
+ *         schema:
+ *           type: string
+ *         description: city of the location
+ *       - in: query
+ *         name: state
+ *         schema:
+ *           type: string
+ *         description: state of the location
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *         description: sort by query in the form of field:desc/asc (ex. name:asc)
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 10
+ *         description: maximum number of locations
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: page number
+ *     responses:
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 results:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Location'
+ *                 page:
+ *                   type: integer
+ *                   example: 1
+ *                 limit:
+ *                   type: integer
+ *                   example: 10
+ *                 totalPages:
+ *                   type: integer
+ *                   example: 1
+ *                 totalResults:
+ *                   type: integer
+ *                   example: 1
  *       "401":
  *         $ref: '#/components/responses/Unauthorized'
  *       "403":

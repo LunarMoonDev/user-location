@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { toJSON } = require('./plugins');
+const { toJSON, paginate } = require('./plugins');
 
 /**
  *  validates loc fields with latitude and longitude inside
@@ -43,6 +43,7 @@ const locationSchema = mongoose.Schema(
 );
 
 locationSchema.plugin(toJSON);
+locationSchema.plugin(paginate);
 
 /**
  * Check if location already exist
