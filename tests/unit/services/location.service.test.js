@@ -50,4 +50,28 @@ describe('Service: locationService', () => {
       await expect(mockCreate).not.toHaveBeenCalled();
     });
   });
+
+  describe('queryLocation method', () => {
+    let newFilter;
+    let newOptions;
+
+    beforeEach(() => {
+      newFilter = {
+        city: faker.location.city(),
+        state: faker.location.state(),
+      };
+
+      newOptions = {
+        sortBy: 'field:asc',
+        limit: faker.number.int(),
+        page: faker.number.int(),
+      };
+    });
+
+    test('should paginate with valid params', async () => {
+      const mockPaginate = jest.spyOn(Location, 'paginate').mockImplementationOnce(() => Promise.resolve([]));
+      await expect(locationService.queryLocations(newFilter, newOptions)).resolves.toEqual([]);
+      await expect(mockPaginate).toHaveBeenCalled();
+    });
+  });
 });
