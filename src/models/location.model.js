@@ -19,14 +19,20 @@ const locationSchema = mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+      maxLength: 25,
+      minLength: 1,
     },
     pop: {
       type: Number,
       required: true,
+      min: [1000, 'must have 4 digits only'],
+      max: [9999, 'must have 4 digits only'],
     },
     state: {
       type: String,
       required: true,
+      maxLength: 25,
+      minLength: 1,
     },
     loc: {
       type: [Number],
