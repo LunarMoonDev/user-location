@@ -10,7 +10,7 @@ describe('Model: Location', () => {
     beforeEach(() => {
       newLocation = {
         city: faker.location.city(),
-        pop: 123,
+        pop: 1234,
         state: faker.location.state(),
         loc: [0.21, 23.4],
       };
@@ -28,6 +28,40 @@ describe('Model: Location', () => {
     test('should throw validation error if loc is invalid in values', async () => {
       newLocation.loc = [123, 1234];
       await expect(new Location(newLocation).validate()).rejects.toThrow();
+    });
+
+    test('should throw validation error if city is more than 25 chars', async () => {
+      newLocation.city = faker.string.alphanumeric({ length: 26 });
+      await expect(new Location(newLocation).validate()).rejects.toThrow();
+    });
+
+    test('should throw validation error if city is blank', async () => {
+      newLocation.city = '';
+      await expect(new Location(newLocation).validate()).rejects.toThrow();
+    });
+
+    test('should throw validation error if state is more than 25 chars', async () => {
+      newLocation.state = faker.string.alphanumeric({ length: 26 });
+      await expect(new Location(newLocation).validate()).rejects.toThrow();
+    });
+
+    test('should throw validation error if state is blank', async () => {
+      newLocation.state = '';
+      await expect(new Location(newLocation).validate()).rejects.toThrow();
+    });
+
+    test('should throw validation error if pop is below 4 digits', async () => {
+      newLocation.pop = 123;
+      await expect(new Location(newLocation).validate()).rejects.toThrow(
+        'Location validation failed: pop: must have 4 digits only'
+      );
+    });
+
+    test('should throw validation error if pop is above 4 digits', async () => {
+      newLocation.pop = 12345;
+      await expect(new Location(newLocation).validate()).rejects.toThrow(
+        'Location validation failed: pop: must have 4 digits only'
+      );
     });
   });
 
