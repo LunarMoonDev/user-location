@@ -43,14 +43,20 @@ module.exports = router;
  *             properties:
  *               city:
  *                 type: string
+ *                 minlength: 1
+ *                 maxlength: 25
  *               pop:
  *                 type: string
  *                 description: something i do not know atm
+ *                 minimum: 1000
+ *                 maximum: 9999
  *               state:
  *                 type: string
+ *                 minlength: 1
+ *                 maxlength: 25
  *               loc:
  *                 type: [number]
- *                 description: array of angles, must be size of 2
+ *                 description: array of angles, must be size of 2; each element should be -180 < @ < 180
  *             example:
  *               city: quezon
  *               pop: 1103
@@ -81,11 +87,15 @@ module.exports = router;
  *         name: city
  *         schema:
  *           type: string
+ *           minlength: 1
+ *           maxlength: 25
  *         description: city of the location
  *       - in: query
  *         name: state
  *         schema:
  *           type: string
+ *           minlength: 1
+ *           maxlength: 25
  *         description: state of the location
  *       - in: query
  *         name: sortBy
