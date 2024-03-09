@@ -7,7 +7,15 @@ const locationValidation = require('../../validations/location.validation');
 const router = express.Router();
 
 router.route('/').post(auth('manageLoc'), validate(locationValidation.createLocation), locationController.createLocation);
-router.route('/').get(auth('getLocs'), validate(locationValidation.getLocations), locationController.getLocations); // TODO: need docs
+router.route('/').get(auth('getLocs'), validate(locationValidation.getLocations), locationController.getLocations);
+router
+  .route('/')
+  .patch(
+    auth('manageLoc'),
+    validate(locationValidation.queryFilter),
+    validate(locationValidation.updateLocation),
+    locationController.updateLocation
+  );
 
 module.exports = router;
 
@@ -29,6 +37,74 @@ module.exports = router;
  *       - oAuthSample:
  *          - profile
  *          - email
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - city
+ *               - pop
+ *               - state
+ *               - loc
+ *             properties:
+ *               city:
+ *                 type: string
+ *                 minlength: 1
+ *                 maxlength: 25
+ *               pop:
+ *                 type: string
+ *                 description: something i do not know atm
+ *                 minimum: 1000
+ *                 maximum: 9999
+ *               state:
+ *                 type: string
+ *                 minlength: 1
+ *                 maxlength: 25
+ *               loc:
+ *                 type: [number]
+ *                 description: array of angles, must be size of 2; each element should be -180 < @ < 180
+ *             example:
+ *               city: quezon
+ *               pop: 1103
+ *               state: manila
+ *               loc: [34, -60]
+ *     responses:
+ *       "201":
+ *         description: Created
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/Location'
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ *       "403":
+ *         $ref: '#/components/responses/Forbidden'
+ *
+ *   patch:
+ *     summary: Update a location
+ *     description: Only admins can update a location
+ *     tags: [Location]
+ *     security:
+ *       - oAuthSample:
+ *          - profile
+ *          - email
+ *     parameters:
+ *       - in: query
+ *         name: city
+ *         schema:
+ *           type: string
+ *           minlength: 1
+ *           maxlength: 25
+ *         description: city of the location
+ *       - in: query
+ *         name: state
+ *         schema:
+ *           type: string
+ *           minlength: 1
+ *           maxlength: 25
+ *         description: state of the location
  *     requestBody:
  *       required: true
  *       content:
