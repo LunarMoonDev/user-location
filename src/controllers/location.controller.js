@@ -16,7 +16,7 @@ const getLocations = catchAsync(async (req, res) => {
 });
 
 const updateLocation = catchAsync(async (req, res) => {
-  const filter = pick(req.query, ['city', 'state']);
+  const filter = pick(req.query, ['id']);
   const result = await locationService.updateLocation(filter, req.body);
   res.status(httpStatus.OK).send(result);
 });
