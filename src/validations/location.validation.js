@@ -30,8 +30,7 @@ const getLocations = {
 const queryFilter = {
   query: Joi.object()
     .keys({
-      city: Joi.string().max(25).min(1),
-      state: Joi.string().max(25).min(1),
+      id: Joi.string().hex().length(24),
     })
     .required(),
 };
