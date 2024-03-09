@@ -94,4 +94,50 @@ describe('Validation: userValidation', () => {
     await expect(error).toBeTruthy();
     await expect(error.details[0].message).toStrictEqual('"body.location.state" is required');
   });
+
+  test('should throw error if user.firstName is beyond max length', async () => {
+    const object = pick(mockReq, ['body']);
+    newUser.firstName = faker.string.alphanumeric({ length: 50 });
+    const { value, error } = Joi.compile(userValidation.createUser).validate(object);
+    await expect(error).toBeTruthy();
+    await expect(error.details[0].message).toStrictEqual(
+      '"body.firstName" length must be less than or equal to 25 characters long'
+    );
+  });
+
+  test('should throw error if user.firstName is empty', async () => {
+    const object = pick(mockReq, ['body']);
+    newUser.firstName = '';
+    const { value, error } = Joi.compile(userValidation.createUser).validate(object);
+    await expect(error).toBeTruthy();
+    await expect(error.details[0].message).toStrictEqual('"body.firstName" is not allowed to be empty');
+  });
+
+  test('should throw error if user.lastName is beyond max length', async () => {
+    const object = pick(mockReq, ['body']);
+    newUser.lastName = faker.string.alphanumeric({ length: 50 });
+    const { value, error } = Joi.compile(userValidation.createUser).validate(object);
+    await expect(error).toBeTruthy();
+    await expect(error.details[0].message).toStrictEqual(
+      '"body.lastName" length must be less than or equal to 25 characters long'
+    );
+  });
+
+  test('should throw error if user.lastName is empty', async () => {
+    const object = pick(mockReq, ['body']);
+    newUser.lastName = '';
+    const { value, error } = Joi.compile(userValidation.createUser).validate(object);
+    await expect(error).toBeTruthy();
+    await expect(error.details[0].message).toStrictEqual('"body.lastName" is not allowed to be empty');
+  });
+
+  test('should throw error if user.email is beyond max length', async () => {
+    const object = pick(mockReq, ['body']);
+    newUser.email = `${faker.string.alphanumeric({ length: 80 })}@gmail.com`;
+    const { value, error } = Joi.compile(userValidation.createUser).validate(object);
+    await expect(error).toBeTruthy();
+    await expect(error.details[0].message).toStrictEqual(
+      '"body.email" length must be less than or equal to 40 characters long'
+    );
+  });
 });

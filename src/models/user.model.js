@@ -11,12 +11,16 @@ const userSchema = mongoose.Schema(
       required: true,
       trim: true,
       lowercase: true,
+      maxLength: 25,
+      minLength: 1,
     },
     lastName: {
       type: String,
       required: true,
       trim: true,
       lowercase: true,
+      maxLength: 25,
+      minLength: 1,
     },
     email: {
       type: String,
@@ -24,6 +28,7 @@ const userSchema = mongoose.Schema(
       unique: true,
       trim: true,
       lowercase: true,
+      maxLength: 40,
       validate(value) {
         if (!validator.isEmail(value)) {
           throw new Error('Invalid email');

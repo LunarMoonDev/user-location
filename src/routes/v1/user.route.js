@@ -42,11 +42,16 @@ module.exports = router;
  *             properties:
  *               firstName:
  *                 type: string
+ *                 minLength: 1
+ *                 maxLength: 25
  *               lastName:
  *                 type: string
+ *                 minLength: 1
+ *                 maxLength: 25
  *               email:
  *                 type: string
  *                 format: email
+ *                 maxLength: 40
  *               location:
  *                 description: city of the location
  *                 type: object
