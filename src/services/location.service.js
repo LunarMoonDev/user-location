@@ -50,14 +50,23 @@ const queryLocations = async (filter, options) => {
  * @returns {Promise<Location>}
  */
 const updateLocation = async (filter, location) => {
-  const { city, state } = filter;
-  const isSame = location.city === city && location.state === state;
+  let { state, city } = location;
+  let loc;
 
-  if (!isSame && (await Location.doesLocationExist(city, state))) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Given location in the payload already exist');
+  if (!state !== !city) {
+    loc = await Location.findOne({ _id: filter.id });
+    state = state || loc.state;
+    city = city || loc.city;
   }
 
-  const loc = await Location.findOneAndUpdate(filter, location, { new: true });
+  if (state && city) {
+    loc = await Location.findOne({ _id: { $ne: filter.id }, state, city });
+    if (loc) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Given location in the payload already exist');
+    }
+  }
+
+  loc = await Location.findOneAndUpdate({ _id: filter.id }, location, { new: true });
   if (!loc) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Location does not exist');
   }
