@@ -6,12 +6,12 @@ const locationValidation = require('../../validations/location.validation');
 
 const router = express.Router();
 
-router.route('/').post(auth('manageLoc'), validate(locationValidation.createLocation), locationController.createLocation);
+router.route('/').post(auth('manageLocs'), validate(locationValidation.createLocation), locationController.createLocation);
 router.route('/').get(auth('getLocs'), validate(locationValidation.getLocations), locationController.getLocations);
 router
   .route('/')
   .patch(
-    auth('manageLoc'),
+    auth('manageLocs'),
     validate(locationValidation.queryFilter),
     validate(locationValidation.updateLocation),
     locationController.updateLocation
