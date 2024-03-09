@@ -92,19 +92,13 @@ module.exports = router;
  *          - email
  *     parameters:
  *       - in: query
- *         name: city
+ *         name: id
  *         schema:
  *           type: string
+ *           format: byte
  *           minlength: 1
- *           maxlength: 25
- *         description: city of the location
- *       - in: query
- *         name: state
- *         schema:
- *           type: string
- *           minlength: 1
- *           maxlength: 25
- *         description: state of the location
+ *           maxlength: 24
+ *         description: id of the document
  *     requestBody:
  *       required: true
  *       content:
