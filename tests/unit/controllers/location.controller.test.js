@@ -45,6 +45,49 @@ describe('Controller: locationController', () => {
     });
   });
 
+  describe('updateLocation method', () => {
+    let newLocation;
+    let newFilter;
+
+    beforeEach(() => {
+      mockReq = httpMocks.createRequest();
+      mockRes = httpMocks.createResponse();
+
+      mockNext = jest.fn((x) => x);
+      mockRes.status = jest.fn(() => mockRes);
+      mockRes.send = jest.fn((x) => x);
+
+      newLocation = {
+        city: faker.location.city(),
+        pop: 123,
+        state: faker.location.state(),
+        loc: [0.21, 23.4],
+      };
+
+      newFilter = {
+        city: faker.location.city(),
+        state: faker.location.state(),
+      };
+
+      mockReq.body = newLocation;
+      mockReq.query = newFilter;
+    });
+
+    test('should call updateLocation successfully when called with valid payload', async () => {
+      const mockUpdateLocation = jest
+        .spyOn(locationService, 'updateLocation')
+        .mockImplementationOnce(() => Promise.resolve(newLocation));
+      await expect(locationController.updateLocation(mockReq, mockRes, mockNext)).toBeUndefined();
+
+      await expect(mockUpdateLocation).toHaveBeenCalled();
+      await expect(mockRes.status).toHaveBeenCalled();
+      await expect(mockRes.send).toHaveBeenCalled();
+      await expect(mockUpdateLocation.mock.calls[0]).toEqual([newFilter, newLocation]);
+      await expect(mockRes.send.mock.calls[0][0]).toStrictEqual(newLocation);
+      await expect(mockRes.status.mock.calls[0][0]).toStrictEqual(httpStatus.OK);
+    });
+  });
+
   describe('queryLocations method', () => {
     let newQuery;
 
