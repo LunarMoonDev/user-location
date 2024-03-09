@@ -1,6 +1,7 @@
 const { faker } = require('@faker-js/faker');
 const httpMocks = require('node-mocks-http');
 const Joi = require('joi');
+const mongoose = require('mongoose');
 const { locationValidation } = require('../../../src/validations');
 const pick = require('../../../src/utils/pick');
 
@@ -205,6 +206,151 @@ describe('Validation: locationValidation', () => {
       const { value, error } = Joi.compile(locationValidation.getLocations).validate(object);
       await expect(error).toBeTruthy();
       await expect(error.details[0].message).toStrictEqual('"query.page" must be a number');
+    });
+  });
+
+  describe('queryFilter Joi', () => {
+    let mockReq;
+    let newQuery;
+
+    beforeEach(() => {
+      mockReq = httpMocks.createRequest();
+
+      newQuery = {
+        id: mongoose.Types.ObjectId().toString(),
+      };
+
+      mockReq.query = newQuery;
+    });
+
+    test('should pass a valid req query', async () => {
+      const object = pick(mockReq, ['query']);
+      const { value, error } = Joi.compile(locationValidation.queryFilter).validate(object);
+      await expect(error).not.toBeTruthy();
+      await expect(value.query).toStrictEqual(newQuery);
+    });
+
+    test('should throw error if city has more than 24 chars', async () => {
+      const object = pick(mockReq, ['query']);
+      newQuery.id = faker.string.hexadecimal({ length: 27, prefix: '' });
+      const { value, error } = Joi.compile(locationValidation.queryFilter).validate(object);
+      await expect(error).toBeTruthy();
+      await expect(error.details[0].message).toStrictEqual('"query.id" length must be 24 characters long');
+    });
+
+    test('should throw error if id is empty', async () => {
+      const object = pick(mockReq, ['query']);
+      newQuery.id = '';
+      const { value, error } = Joi.compile(locationValidation.queryFilter).validate(object);
+      await expect(error).toBeTruthy();
+      await expect(error.details[0].message).toStrictEqual('"query.id" is not allowed to be empty');
+    });
+
+    test('should throw error if id is not hex', async () => {
+      const object = pick(mockReq, ['query']);
+      newQuery.id = '123123asdfae123132adfasdfgwrt234DFasdfgfg2345';
+      const { value, error } = Joi.compile(locationValidation.queryFilter).validate(object);
+      await expect(error).toBeTruthy();
+      await expect(error.details[0].message).toStrictEqual('"query.id" must only contain hexadecimal characters');
+    });
+  });
+
+  describe('updateLocation Joi', () => {
+    let mockReq;
+    let newLocation;
+
+    beforeEach(() => {
+      mockReq = httpMocks.createRequest();
+
+      newLocation = {
+        city: faker.location.city(),
+        pop: 1235,
+        state: faker.location.state(),
+        loc: [0.21, 23.4],
+      };
+
+      mockReq.body = newLocation;
+    });
+
+    test('should pass a valid req body', async () => {
+      const object = pick(mockReq, ['body']);
+      const { value, error } = Joi.compile(locationValidation.updateLocation).validate(object);
+      await expect(error).not.toBeTruthy();
+      await expect(value.body).toStrictEqual(newLocation);
+    });
+
+    test('should throw error if city has more than 25 chars', async () => {
+      newLocation.city = faker.string.alphanumeric({ length: 26 });
+      const object = pick(mockReq, ['body']);
+      const { value, error } = Joi.compile(locationValidation.updateLocation).validate(object);
+      await expect(error).toBeTruthy();
+      await expect(error.details[0].message).toStrictEqual(
+        '"body.city" length must be less than or equal to 25 characters long'
+      );
+    });
+
+    test('should throw error if city is blank', async () => {
+      newLocation.city = '';
+      const object = pick(mockReq, ['body']);
+      const { value, error } = Joi.compile(locationValidation.updateLocation).validate(object);
+      await expect(error).toBeTruthy();
+      await expect(error.details[0].message).toStrictEqual('"body.city" is not allowed to be empty');
+    });
+
+    test('should throw error if pop has more than 4 digits', async () => {
+      newLocation.pop = 12345;
+      const object = pick(mockReq, ['body']);
+      const { value, error } = Joi.compile(locationValidation.updateLocation).validate(object);
+      await expect(error).toBeTruthy();
+      await expect(error.details[0].message).toStrictEqual('"body.pop" must have 4 digits only');
+    });
+
+    test('should throw error if pop has less than 4 digits', async () => {
+      const object = pick(mockReq, ['body']);
+      newLocation.pop = 123;
+      const { value, error } = Joi.compile(locationValidation.updateLocation).validate(object);
+      await expect(error).toBeTruthy();
+      await expect(error.details[0].message).toStrictEqual('"body.pop" must have 4 digits only');
+    });
+
+    test('should throw error if state has more than 25 chars', async () => {
+      newLocation.state = faker.string.alphanumeric({ length: 26 });
+      const object = pick(mockReq, ['body']);
+      const { value, error } = Joi.compile(locationValidation.updateLocation).validate(object);
+      await expect(error).toBeTruthy();
+      await expect(error.details[0].message).toStrictEqual(
+        '"body.state" length must be less than or equal to 25 characters long'
+      );
+    });
+
+    test('should throw error if state is blank', async () => {
+      newLocation.state = '';
+      const object = pick(mockReq, ['body']);
+      const { value, error } = Joi.compile(locationValidation.updateLocation).validate(object);
+      await expect(error).toBeTruthy();
+      await expect(error.details[0].message).toStrictEqual('"body.state" is not allowed to be empty');
+    });
+
+    test('should throw error if loc has less length', async () => {
+      newLocation.loc = [];
+      const object = pick(mockReq, ['body']);
+      const { value, error } = Joi.compile(locationValidation.updateLocation).validate(object);
+      await expect(error).toBeTruthy();
+      await expect(error.details[0].message).toStrictEqual('"body.loc" must be a length of 2 only');
+    });
+
+    test('should throw error if loc invalid value', async () => {
+      newLocation.loc = [1222, 2221];
+      const object = pick(mockReq, ['body']);
+      const { value, error } = Joi.compile(locationValidation.updateLocation).validate(object);
+      await expect(error).toBeTruthy();
+      await expect(error.details[0].message).toStrictEqual('"body.loc" must be between -180 and 180, inclusive');
+    });
+
+    test('should throw error if req.body is empty', async () => {
+      const { value, error } = Joi.compile(locationValidation.updateLocation).validate({ body: {} });
+      await expect(error).toBeTruthy();
+      await expect(error.details[0].message).toStrictEqual('"body" must have at least 1 key');
     });
   });
 });

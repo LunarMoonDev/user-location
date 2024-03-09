@@ -4,7 +4,7 @@ const ApiError = require('../utils/ApiError');
 
 /**
  * Creates a location in database
- * @param {Object} location
+ * @param {Location} location
  * @returns {Promise<Location>}
  */
 const createLocation = async (location) => {
@@ -17,12 +17,12 @@ const createLocation = async (location) => {
 
 /**
  * Finds a location in database
- * @param {Object} location contains city and state
+ * @param {Object} filter contains city and state
  * @param {boolean} required flag if required
  * @returns {Promise<User>}
  */
-const findLocation = async (location, required = false) => {
-  const loc = await Location.findOne({ state: location.state, city: location.city });
+const findLocation = async (filter, required = false) => {
+  const loc = await Location.findOne({ state: filter.state, city: filter.city });
   if (required && !loc) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Location does not exist');
   }
@@ -43,8 +43,39 @@ const queryLocations = async (filter, options) => {
   return locations;
 };
 
+/**
+ * Updates a user in the database
+ * @param {Object} filter - Mongo filter
+ * @param {Location} location - Location object
+ * @returns {Promise<Location>}
+ */
+const updateLocation = async (filter, location) => {
+  let { state, city } = location;
+  let loc;
+
+  if (!state !== !city) {
+    loc = await Location.findOne({ _id: filter.id });
+    state = state || loc.state;
+    city = city || loc.city;
+  }
+
+  if (state && city) {
+    loc = await Location.findOne({ _id: { $ne: filter.id }, state, city });
+    if (loc) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Given location in the payload already exist');
+    }
+  }
+
+  loc = await Location.findOneAndUpdate({ _id: filter.id }, location, { new: true });
+  if (!loc) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Location does not exist');
+  }
+  return loc;
+};
+
 module.exports = {
   createLocation,
   findLocation,
   queryLocations,
+  updateLocation,
 };
