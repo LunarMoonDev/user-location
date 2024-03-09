@@ -1,6 +1,7 @@
 const { faker } = require('@faker-js/faker');
 const httpMocks = require('node-mocks-http');
 const Joi = require('joi');
+const mongoose = require('mongoose');
 const { locationValidation } = require('../../../src/validations');
 const pick = require('../../../src/utils/pick');
 
@@ -216,8 +217,7 @@ describe('Validation: locationValidation', () => {
       mockReq = httpMocks.createRequest();
 
       newQuery = {
-        city: faker.location.city(),
-        state: faker.location.state(),
+        id: mongoose.Types.ObjectId().toString(),
       };
 
       mockReq.query = newQuery;
@@ -230,40 +230,28 @@ describe('Validation: locationValidation', () => {
       await expect(value.query).toStrictEqual(newQuery);
     });
 
-    test('should throw error if city has more than 25 chars', async () => {
+    test('should throw error if city has more than 24 chars', async () => {
       const object = pick(mockReq, ['query']);
-      newQuery.city = faker.string.alphanumeric({ length: 26 });
+      newQuery.id = faker.string.hexadecimal({ length: 27, prefix: '' });
       const { value, error } = Joi.compile(locationValidation.queryFilter).validate(object);
       await expect(error).toBeTruthy();
-      await expect(error.details[0].message).toStrictEqual(
-        '"query.city" length must be less than or equal to 25 characters long'
-      );
+      await expect(error.details[0].message).toStrictEqual('"query.id" length must be 24 characters long');
     });
 
-    test('should throw error if city is empty', async () => {
+    test('should throw error if id is empty', async () => {
       const object = pick(mockReq, ['query']);
-      newQuery.city = '';
+      newQuery.id = '';
       const { value, error } = Joi.compile(locationValidation.queryFilter).validate(object);
       await expect(error).toBeTruthy();
-      await expect(error.details[0].message).toStrictEqual('"query.city" is not allowed to be empty');
+      await expect(error.details[0].message).toStrictEqual('"query.id" is not allowed to be empty');
     });
 
-    test('should throw error if state has more than 25 chars', async () => {
+    test('should throw error if id is not hex', async () => {
       const object = pick(mockReq, ['query']);
-      newQuery.state = faker.string.alphanumeric({ length: 26 });
+      newQuery.id = '123123asdfae123132adfasdfgwrt234DFasdfgfg2345';
       const { value, error } = Joi.compile(locationValidation.queryFilter).validate(object);
       await expect(error).toBeTruthy();
-      await expect(error.details[0].message).toStrictEqual(
-        '"query.state" length must be less than or equal to 25 characters long'
-      );
-    });
-
-    test('should throw error if state is empty', async () => {
-      const object = pick(mockReq, ['query']);
-      newQuery.state = '';
-      const { value, error } = Joi.compile(locationValidation.queryFilter).validate(object);
-      await expect(error).toBeTruthy();
-      await expect(error.details[0].message).toStrictEqual('"query.state" is not allowed to be empty');
+      await expect(error.details[0].message).toStrictEqual('"query.id" must only contain hexadecimal characters');
     });
   });
 

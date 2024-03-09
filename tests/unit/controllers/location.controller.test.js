@@ -1,5 +1,6 @@
 const httpMocks = require('node-mocks-http');
 const httpStatus = require('http-status');
+const mongoose = require('mongoose');
 const { faker } = require('@faker-js/faker');
 const { locationController } = require('../../../src/controllers');
 const { locationService } = require('../../../src/services');
@@ -65,8 +66,7 @@ describe('Controller: locationController', () => {
       };
 
       newFilter = {
-        city: faker.location.city(),
-        state: faker.location.state(),
+        id: mongoose.Types.ObjectId().toString(),
       };
 
       mockReq.body = newLocation;

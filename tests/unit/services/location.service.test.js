@@ -1,5 +1,6 @@
 const { faker } = require('@faker-js/faker');
 const httpStatus = require('http-status');
+const mongoose = require('mongoose');
 const { locationService } = require('../../../src/services');
 const { Location } = require('../../../src/models');
 const ApiError = require('../../../src/utils/ApiError');
@@ -57,8 +58,7 @@ describe('Service: locationService', () => {
 
     beforeEach(() => {
       newFilter = {
-        city: faker.location.city(),
-        state: faker.location.state(),
+        id: mongoose.Types.ObjectId().toString(),
       };
 
       newLocation = {
@@ -70,115 +70,112 @@ describe('Service: locationService', () => {
     });
 
     test('should update with valid params', async () => {
-      const mockDoesLocationExist = jest
-        .spyOn(Location, 'doesLocationExist')
-        .mockImplementationOnce(() => Promise.resolve(null));
+      const mockFindOne = jest.spyOn(Location, 'findOne').mockReturnValueOnce(null);
       const mockFindOneAndUpdate = jest
         .spyOn(Location, 'findOneAndUpdate')
         .mockImplementationOnce(() => Promise.resolve(['success']));
       await expect(locationService.updateLocation(newFilter, newLocation)).resolves.toEqual(['success']);
-      await expect(mockDoesLocationExist).toHaveBeenCalled();
+      await expect(mockFindOne).toHaveBeenCalled();
+      await expect(mockFindOne.mock.calls.length).toBe(1);
       await expect(mockFindOneAndUpdate).toHaveBeenCalled();
+      await expect(mockFindOneAndUpdate.mock.calls[0][0]).toEqual({ _id: newFilter.id });
     });
 
-    test('should update with valid params where cities and states are the same', async () => {
-      newLocation.city = newFilter.city;
-      newLocation.state = newFilter.state;
+    test('should update with valid params (no state and city in payload)', async () => {
+      delete newLocation.state;
+      delete newLocation.city;
 
-      const mockDoesLocationExist = jest
-        .spyOn(Location, 'doesLocationExist')
-        .mockImplementationOnce(() => Promise.resolve(null));
+      const mockFindOne = jest.spyOn(Location, 'findOne').mockReturnValueOnce(null);
       const mockFindOneAndUpdate = jest
         .spyOn(Location, 'findOneAndUpdate')
         .mockImplementationOnce(() => Promise.resolve(['success']));
       await expect(locationService.updateLocation(newFilter, newLocation)).resolves.toEqual(['success']);
-      await expect(mockDoesLocationExist).not.toHaveBeenCalled();
+      await expect(mockFindOne).not.toHaveBeenCalled();
       await expect(mockFindOneAndUpdate).toHaveBeenCalled();
     });
 
-    test('should update with valid params where cities are the same', async () => {
-      newLocation.city = newFilter.city;
+    test("should throw when given city and state doesn't exist (no city in payload)", async () => {
+      const { city } = newLocation;
+      delete newLocation.city;
 
-      const mockDoesLocationExist = jest
-        .spyOn(Location, 'doesLocationExist')
-        .mockImplementationOnce(() => Promise.resolve(null));
+      const mockFindOne = jest.spyOn(Location, 'findOne').mockReturnValueOnce({ city }).mockReturnValueOnce(null);
       const mockFindOneAndUpdate = jest
         .spyOn(Location, 'findOneAndUpdate')
         .mockImplementationOnce(() => Promise.resolve(['success']));
       await expect(locationService.updateLocation(newFilter, newLocation)).resolves.toEqual(['success']);
-      await expect(mockDoesLocationExist).toHaveBeenCalled();
+      await expect(mockFindOne).toHaveBeenCalled();
+      await expect(mockFindOne.mock.calls.length).toBe(2);
+      await expect(mockFindOne.mock.calls[0][0]).toEqual({ _id: newFilter.id });
+      await expect(mockFindOne.mock.calls[1][0]).toEqual({
+        _id: { $ne: newFilter.id },
+        city,
+        state: newLocation.state,
+      });
       await expect(mockFindOneAndUpdate).toHaveBeenCalled();
     });
 
-    test('should update with valid params where states are the same', async () => {
-      newLocation.state = newFilter.state;
+    test("should throw when given city and state doesn't exist (no state in payload)", async () => {
+      const { state } = newLocation;
+      delete newLocation.state;
 
-      const mockDoesLocationExist = jest
-        .spyOn(Location, 'doesLocationExist')
-        .mockImplementationOnce(() => Promise.resolve(null));
+      const mockFindOne = jest.spyOn(Location, 'findOne').mockReturnValueOnce({ state }).mockReturnValueOnce(null);
       const mockFindOneAndUpdate = jest
         .spyOn(Location, 'findOneAndUpdate')
         .mockImplementationOnce(() => Promise.resolve(['success']));
       await expect(locationService.updateLocation(newFilter, newLocation)).resolves.toEqual(['success']);
-      await expect(mockDoesLocationExist).toHaveBeenCalled();
+      await expect(mockFindOne).toHaveBeenCalled();
+      await expect(mockFindOne.mock.calls.length).toBe(2);
+      await expect(mockFindOne.mock.calls[0][0]).toEqual({ _id: newFilter.id });
+      await expect(mockFindOne.mock.calls[1][0]).toEqual({
+        _id: { $ne: newFilter.id },
+        city: newLocation.city,
+        state,
+      });
       await expect(mockFindOneAndUpdate).toHaveBeenCalled();
     });
 
-    test('should throw when given update has existing location with same city', async () => {
-      newLocation.city = newFilter.city;
+    test('should throw when given city and state exist (no city in payload)', async () => {
+      delete newLocation.city;
 
-      const mockDoesLocationExist = jest
-        .spyOn(Location, 'doesLocationExist')
-        .mockImplementationOnce(() => Promise.resolve([]));
+      const mockFindOne = jest
+        .spyOn(Location, 'findOne')
+        .mockReturnValueOnce({ city: faker.location.city() })
+        .mockReturnValueOnce({});
       const mockFindOneAndUpdate = jest
         .spyOn(Location, 'findOneAndUpdate')
         .mockImplementationOnce(() => Promise.resolve(['success']));
       await expect(locationService.updateLocation(newFilter, newLocation)).rejects.toThrow(
         'Given location in the payload already exist'
       );
-      await expect(mockDoesLocationExist).toHaveBeenCalled();
+      await expect(mockFindOne).toHaveBeenCalled();
       await expect(mockFindOneAndUpdate).not.toHaveBeenCalled();
     });
 
-    test('should throw when given update has existing location with same state', async () => {
-      newLocation.state = newFilter.state;
+    test('should throw when given city and state exist (no state in payload)', async () => {
+      delete newLocation.state;
 
-      const mockDoesLocationExist = jest
-        .spyOn(Location, 'doesLocationExist')
-        .mockImplementationOnce(() => Promise.resolve([]));
+      const mockFindOne = jest
+        .spyOn(Location, 'findOne')
+        .mockReturnValueOnce({ state: faker.location.city() })
+        .mockReturnValueOnce({});
       const mockFindOneAndUpdate = jest
         .spyOn(Location, 'findOneAndUpdate')
         .mockImplementationOnce(() => Promise.resolve(['success']));
       await expect(locationService.updateLocation(newFilter, newLocation)).rejects.toThrow(
         'Given location in the payload already exist'
       );
-      await expect(mockDoesLocationExist).toHaveBeenCalled();
-      await expect(mockFindOneAndUpdate).not.toHaveBeenCalled();
-    });
-
-    test('should throw when given update has existing location', async () => {
-      const mockDoesLocationExist = jest
-        .spyOn(Location, 'doesLocationExist')
-        .mockImplementationOnce(() => Promise.resolve([]));
-      const mockFindOneAndUpdate = jest
-        .spyOn(Location, 'findOneAndUpdate')
-        .mockImplementationOnce(() => Promise.resolve(['success']));
-      await expect(locationService.updateLocation(newFilter, newLocation)).rejects.toThrow(
-        'Given location in the payload already exist'
-      );
-      await expect(mockDoesLocationExist).toHaveBeenCalled();
+      await expect(mockFindOne).toHaveBeenCalled();
       await expect(mockFindOneAndUpdate).not.toHaveBeenCalled();
     });
 
     test("should throw when filter doesn't exist in db", async () => {
-      const mockDoesLocationExist = jest
-        .spyOn(Location, 'doesLocationExist')
-        .mockImplementationOnce(() => Promise.resolve(null));
+      const mockFindOne = jest.spyOn(Location, 'findOne').mockReturnValueOnce(null);
       const mockFindOneAndUpdate = jest
         .spyOn(Location, 'findOneAndUpdate')
         .mockImplementationOnce(() => Promise.resolve(null));
       await expect(locationService.updateLocation(newFilter, newLocation)).rejects.toThrow('Location does not exist');
-      await expect(mockDoesLocationExist).toHaveBeenCalled();
+      await expect(mockFindOne).toHaveBeenCalled();
+      await expect(mockFindOne.mock.calls.length).toBe(1);
       await expect(mockFindOneAndUpdate).toHaveBeenCalled();
     });
   });
