@@ -47,6 +47,31 @@ describe('Model: User', () => {
       newUser.location = 'invalid';
       await expect(new User(newUser).validate()).rejects.toThrow();
     });
+
+    test('should throw a validation error if firstName is beyond max length', async () => {
+      newUser.firstName = faker.string.alphanumeric({ length: 26 });
+      await expect(new User(newUser).validate()).rejects.toThrow();
+    });
+
+    test('should throw a validation error if firstName is below min length', async () => {
+      newUser.firstName = '';
+      await expect(new User(newUser).validate()).rejects.toThrow();
+    });
+
+    test('should throw a validation error if lastName is beyond max length', async () => {
+      newUser.lastName = faker.string.alphanumeric({ length: 26 });
+      await expect(new User(newUser).validate()).rejects.toThrow();
+    });
+
+    test('should throw a validation error if lastName is below min length', async () => {
+      newUser.lastName = '';
+      await expect(new User(newUser).validate()).rejects.toThrow();
+    });
+
+    test('should throw a validation error if email is beyond max length', async () => {
+      newUser.email = `${faker.string.alphanumeric({ length: 80 })}@gmail.com`;
+      await expect(new User(newUser).validate()).rejects.toThrow();
+    });
   });
 
   describe('User toJSON()', () => {
