@@ -44,7 +44,7 @@ const queryLocations = async (filter, options) => {
 };
 
 /**
- * Updates a user in the database
+ * Updates a location in the database
  * @param {Object} filter - Mongo filter
  * @param {Location} location - Location object
  * @returns {Promise<Location>}
