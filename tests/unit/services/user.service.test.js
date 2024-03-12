@@ -1,6 +1,7 @@
 const { faker } = require('@faker-js/faker');
 const httpStatus = require('http-status');
-const { userService } = require('../../../src/services');
+const mongoose = require('mongoose');
+const { userService, locationService } = require('../../../src/services');
 const { providerNames } = require('../../../src/config/providers');
 const { User } = require('../../../src/models');
 const ApiError = require('../../../src/utils/ApiError');
@@ -181,6 +182,106 @@ describe('Service: userService', () => {
       await expect(userService.findUserAndUpdate(newFilter, newUser)).rejects.toThrow(error);
       await expect(mockDoesEmailExist).toHaveBeenCalled();
       await expect(mockFindOneAndUpdate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('updateUser method', () => {
+    let newFilter;
+    let newLocation;
+
+    beforeEach(() => {
+      newLocation = {
+        city: faker.location.city(),
+        state: faker.location.city(),
+      };
+
+      newUser = {
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        role: 'user',
+        email: faker.internet.email(),
+        location: newLocation,
+      };
+
+      newFilter = {
+        id: mongoose.Types.ObjectId().toString(),
+      };
+    });
+
+    test('should update with valid params', async () => {
+      const mockFindLocation = jest
+        .spyOn(locationService, 'findLocation')
+        .mockImplementationOnce(() => Promise.resolve(null));
+      const mockFindOne = jest.spyOn(User, 'findOne').mockImplementationOnce(() => Promise.resolve(null));
+      const mockFineOneAndUpdate = jest
+        .spyOn(User, 'findOneAndUpdate')
+        .mockImplementationOnce(() => Promise.resolve(newUser));
+      await expect(userService.updateUser(newFilter, newUser)).resolves.toEqual(newUser);
+      await expect(mockFindLocation).toHaveBeenCalled();
+      await expect(mockFindOne).toHaveBeenCalled();
+      await expect(mockFineOneAndUpdate).toHaveBeenCalled();
+      await expect(mockFindOne.mock.calls[0][0]).toStrictEqual({ _id: { $ne: newFilter.id }, email: newUser.email });
+      await expect(mockFineOneAndUpdate.mock.calls[0][0]).toStrictEqual({ _id: newFilter.id });
+
+      const copyUser = JSON.parse(JSON.stringify(newUser));
+      copyUser.location = null;
+
+      await expect(mockFineOneAndUpdate.mock.calls[0][1]).toStrictEqual(copyUser);
+      await expect(mockFineOneAndUpdate.mock.calls[0][2]).toStrictEqual({ new: true });
+    });
+
+    test('should update with valid params but without location', async () => {
+      delete newUser.location;
+
+      const mockFindLocation = jest
+        .spyOn(locationService, 'findLocation')
+        .mockImplementationOnce(() => Promise.resolve(null));
+      const mockFindOne = jest.spyOn(User, 'findOne').mockImplementationOnce(() => Promise.resolve(null));
+      const mockFineOneAndUpdate = jest
+        .spyOn(User, 'findOneAndUpdate')
+        .mockImplementationOnce(() => Promise.resolve(newUser));
+      await expect(userService.updateUser(newFilter, newUser)).resolves.toEqual(newUser);
+      await expect(mockFindLocation).not.toHaveBeenCalled();
+      await expect(mockFindOne).toHaveBeenCalled();
+      await expect(mockFineOneAndUpdate).toHaveBeenCalled();
+      await expect(mockFindOne.mock.calls[0][0]).toStrictEqual({ _id: { $ne: newFilter.id }, email: newUser.email });
+      await expect(mockFineOneAndUpdate.mock.calls[0][0]).toStrictEqual({ _id: newFilter.id });
+      await expect(mockFineOneAndUpdate.mock.calls[0][1]).toStrictEqual(newUser);
+      await expect(mockFineOneAndUpdate.mock.calls[0][2]).toStrictEqual({ new: true });
+    });
+
+    test('should update with valid params but without email', async () => {
+      delete newUser.email;
+
+      const mockFindLocation = jest
+        .spyOn(locationService, 'findLocation')
+        .mockImplementationOnce(() => Promise.resolve(null));
+      const mockFindOne = jest.spyOn(User, 'findOne').mockImplementationOnce(() => Promise.resolve(null));
+      const mockFineOneAndUpdate = jest
+        .spyOn(User, 'findOneAndUpdate')
+        .mockImplementationOnce(() => Promise.resolve(newUser));
+      await expect(userService.updateUser(newFilter, newUser)).resolves.toEqual(newUser);
+      await expect(mockFindLocation).toHaveBeenCalled();
+      await expect(mockFindOne).not.toHaveBeenCalled();
+      await expect(mockFineOneAndUpdate).toHaveBeenCalled();
+      await expect(mockFineOneAndUpdate.mock.calls[0][0]).toStrictEqual({ _id: newFilter.id });
+      await expect(mockFineOneAndUpdate.mock.calls[0][1]).toStrictEqual(newUser);
+      await expect(mockFineOneAndUpdate.mock.calls[0][2]).toStrictEqual({ new: true });
+    });
+
+    test('should throw when email exist', async () => {
+      const mockFindLocation = jest
+        .spyOn(locationService, 'findLocation')
+        .mockImplementationOnce(() => Promise.resolve(null));
+      const mockFindOne = jest.spyOn(User, 'findOne').mockImplementationOnce(() => Promise.resolve(['success']));
+      const mockFineOneAndUpdate = jest
+        .spyOn(User, 'findOneAndUpdate')
+        .mockImplementationOnce(() => Promise.resolve(newUser));
+      await expect(userService.updateUser(newFilter, newUser)).rejects.toThrow('Email already taken');
+      await expect(mockFindLocation).toHaveBeenCalled();
+      await expect(mockFindOne).toHaveBeenCalled();
+      await expect(mockFineOneAndUpdate).not.toHaveBeenCalled();
+      await expect(mockFindOne.mock.calls[0][0]).toStrictEqual({ _id: { $ne: newFilter.id }, email: newUser.email });
     });
   });
 });
