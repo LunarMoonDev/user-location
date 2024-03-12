@@ -37,7 +37,7 @@ const refresh = async (req, res, next) => {
     return next(new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate'));
   }
 
-  if (moment().subtract(req.user.account.expireDate, 's').format('X') < -300) {
+  if (moment().subtract(req.user.account.expireDate, 's').format('X') > 300) {
     oauth2Client.setCredentials({
       access_token: req.user.account.accessToken,
       refresh_token: req.user.account.refreshToken,

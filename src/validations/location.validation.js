@@ -27,14 +27,6 @@ const getLocations = {
     .required(),
 };
 
-const queryFilter = {
-  query: Joi.object()
-    .keys({
-      id: Joi.string().hex().length(24),
-    })
-    .required(),
-};
-
 const updateLocation = {
   body: Joi.object()
     .keys({
@@ -53,6 +45,5 @@ const updateLocation = {
 module.exports = {
   createLocation,
   getLocations,
-  queryFilter,
   updateLocation,
 };

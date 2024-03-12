@@ -1,6 +1,7 @@
 const httpStatus = require('http-status');
 const { User } = require('../models');
 const ApiError = require('../utils/ApiError');
+const locationService = require('./location.service');
 
 /**
  * Create a user
@@ -39,8 +40,35 @@ const findUserAndUpdate = async (filter, user) => {
   return User.findOneAndUpdate({ 'account.provider': provider, 'account.subject': subject, email }, user);
 };
 
+/**
+ * Updates location in the database
+ * @param {Object} filter - Mongo filter
+ * @param {User} user - User object
+ * @returns {Promise<User>}
+ */
+const updateUser = async (filter, user) => {
+  const userBody = user;
+
+  if (user.location) {
+    const { city, state } = user.location;
+    const loc = await locationService.findLocation({ city, state }, true);
+    userBody.location = loc;
+  }
+
+  if (user.email) {
+    const doesUserExist = await User.findOne({ _id: { $ne: filter.id }, email: user.email });
+    if (doesUserExist) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
+    }
+  }
+
+  const updatedUser = await User.findOneAndUpdate({ _id: filter.id }, userBody, { new: true });
+  return updatedUser;
+};
+
 module.exports = {
   createUser,
   getUserByProviderAndSubject,
   findUserAndUpdate,
+  updateUser,
 };
