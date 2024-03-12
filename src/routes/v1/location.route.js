@@ -3,6 +3,7 @@ const locationController = require('../../controllers/location.controller');
 const validate = require('../../middlewares/validate');
 const { auth } = require('../../middlewares/auth');
 const locationValidation = require('../../validations/location.validation');
+const commonValidation = require('../../validations/common.validation');
 
 const router = express.Router();
 
@@ -12,7 +13,7 @@ router
   .route('/')
   .patch(
     auth('manageLocs'),
-    validate(locationValidation.queryFilter),
+    validate(commonValidation.queryFilter),
     validate(locationValidation.updateLocation),
     locationController.updateLocation
   );
