@@ -11,6 +11,7 @@ describe('Model: Location', () => {
       newLocation = {
         city: faker.location.city(),
         pop: 1234,
+        population: 0,
         state: faker.location.state(),
         loc: [0.21, 23.4],
       };
@@ -27,6 +28,11 @@ describe('Model: Location', () => {
 
     test('should throw validation error if loc is invalid in values', async () => {
       newLocation.loc = [123, 1234];
+      await expect(new Location(newLocation).validate()).rejects.toThrow();
+    });
+
+    test('should throw validation error if population is invalid in values', async () => {
+      newLocation.population = 'invalid';
       await expect(new Location(newLocation).validate()).rejects.toThrow();
     });
 
