@@ -6,7 +6,7 @@ const { locationValidation } = require('../../../src/validations');
 const pick = require('../../../src/utils/pick');
 
 describe('Validation: locationValidation', () => {
-  describe('createLocation Joi', () => {
+  describe('createLocation validate', () => {
     let mockReq;
     let newLocation;
 
@@ -131,7 +131,7 @@ describe('Validation: locationValidation', () => {
     });
   });
 
-  describe('getLocations Joi', () => {
+  describe('getLocations validate', () => {
     let mockReq;
     let newQuery;
 
@@ -209,7 +209,7 @@ describe('Validation: locationValidation', () => {
     });
   });
 
-  describe('updateLocation Joi', () => {
+  describe('updateLocation validate', () => {
     let mockReq;
     let newLocation;
 

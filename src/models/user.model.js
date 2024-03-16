@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
-const { toJSON } = require('./plugins');
+const { toJSON, paginate } = require('./plugins');
 const accountSchema = require('./account.model');
 const { roles } = require('../config/roles');
 
@@ -54,8 +54,8 @@ const userSchema = mongoose.Schema(
   }
 );
 
-// add plugin that converts mongoose to json
 userSchema.plugin(toJSON);
+userSchema.plugin(paginate);
 
 /**
  * Check if email is taken

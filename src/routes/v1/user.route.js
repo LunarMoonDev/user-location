@@ -8,6 +8,7 @@ const commonValidation = require('../../validations/common.validation');
 const router = express.Router();
 
 router.route('/').post(auth('manageUsers'), validate(userValidation.createUser), userController.createUser);
+router.route('/').get(auth('getUsers'), validate(userValidation.getUsers), userController.getUsers);
 router
   .route('/')
   .patch(
@@ -83,6 +84,84 @@ module.exports = router;
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/User'
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ *       "403":
+ *         $ref: '#/components/responses/Forbidden'
+ *
+ *   get:
+ *     summary: Retrieve Users
+ *     description: API is paginated and any user can retrieve
+ *     tags: [User]
+ *     security:
+ *       - oAuthSample:
+ *          - profile
+ *          - email
+ *     parameters:
+ *       - in: query
+ *         name: firstName
+ *         schema:
+ *           type: string
+ *           minlength: 1
+ *           maxlength: 25
+ *         description: first name of the user
+ *       - in: query
+ *         name: lastName
+ *         schema:
+ *           type: string
+ *           minlength: 1
+ *           maxlength: 25
+ *         description: last name of the user
+ *       - in: query
+ *         name: email
+ *         schema:
+ *           type: string
+ *           minlength: 1
+ *           maxlength: 25
+ *         description: email of the user
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *         description: sort by query in the form of field:desc/asc (ex. name:asc)
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 10
+ *         description: maximum number of locations
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: page number
+ *     responses:
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 results:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/User'
+ *                 page:
+ *                   type: integer
+ *                   example: 1
+ *                 limit:
+ *                   type: integer
+ *                   example: 10
+ *                 totalPages:
+ *                   type: integer
+ *                   example: 1
+ *                 totalResults:
+ *                   type: integer
+ *                   example: 1
  *       "401":
  *         $ref: '#/components/responses/Unauthorized'
  *       "403":

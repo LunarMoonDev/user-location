@@ -33,8 +33,7 @@ components:
           type: string
           format: email
         location:
-          schema:
-            $ref: '#/components/schemas/Location'
+          $ref: '#/components/schemas/Location'
     
     Error:
       type: object

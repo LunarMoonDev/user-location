@@ -15,6 +15,19 @@ const createUser = {
   }),
 };
 
+const getUsers = {
+  query: Joi.object()
+    .keys({
+      firstName: Joi.string().min(1).max(25),
+      lastName: Joi.string().min(1).max(25),
+      email: Joi.string().max(40).email(),
+      sortBy: Joi.string(),
+      limit: Joi.number().integer(),
+      page: Joi.number().integer(),
+    })
+    .required(),
+};
+
 const updateUser = {
   body: Joi.object()
     .keys({
@@ -34,4 +47,5 @@ const updateUser = {
 module.exports = {
   createUser,
   updateUser,
+  getUsers,
 };

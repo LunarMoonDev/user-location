@@ -284,4 +284,23 @@ describe('Service: userService', () => {
       await expect(mockFindOne.mock.calls[0][0]).toStrictEqual({ _id: { $ne: newFilter.id }, email: newUser.email });
     });
   });
+
+  describe('queryUsers method', () => {
+    let newFilter;
+    let newOptions;
+
+    beforeEach(() => {
+      newFilter = {
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        email: faker.internet.email(),
+      };
+    });
+
+    test('should paginate with valid params', async () => {
+      const mockPaginate = jest.spyOn(User, 'paginate').mockImplementationOnce(() => Promise.resolve([]));
+      await expect(userService.queryUsers(newFilter, newOptions)).resolves.toEqual([]);
+      await expect(mockPaginate).toHaveBeenCalled();
+    });
+  });
 });

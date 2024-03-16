@@ -69,7 +69,7 @@ describe('Controller: userController', () => {
       mockRes = httpMocks.createResponse();
       mockNext = jest.fn((x) => x);
       mockRes.status = jest.fn(() => mockRes);
-      mockRes.send = jest.fn((x) => mockRes);
+      mockRes.send = jest.fn((x) => x);
 
       newLocation = {
         city: faker.location.city(),
@@ -101,6 +101,47 @@ describe('Controller: userController', () => {
       await expect(mockUpdateUser.mock.calls[0][0]).toEqual(newFilter);
       await expect(mockUpdateUser.mock.calls[0][1]).toEqual(newUser);
       await expect(mockRes.send.mock.calls[0][0]).toEqual(newUser);
+    });
+  });
+
+  describe('getUser method', () => {
+    let newQuery;
+
+    beforeEach(() => {
+      mockReq = httpMocks.createRequest();
+      mockRes = httpMocks.createResponse();
+
+      mockNext = jest.fn((x) => x);
+      mockRes.status = jest.fn(() => mockRes);
+      mockRes.send = jest.fn((x) => x);
+
+      newQuery = {
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        email: faker.internet.email(),
+        sortBy: 'field:asc',
+        limit: faker.number.int(),
+        page: faker.number.int(),
+      };
+
+      mockReq.query = newQuery;
+    });
+
+    test('should call queryUsers successfully when called with valid payload', async () => {
+      const mockQueryUsers = jest.spyOn(userService, 'queryUsers').mockImplementationOnce(() => Promise.resolve({}));
+      await expect(userController.getUsers(mockReq, mockRes, mockNext)).toBeUndefined();
+
+      await expect(mockQueryUsers).toHaveBeenCalled();
+      await expect(mockRes.status).toHaveBeenCalled();
+      await expect(mockRes.send).toHaveBeenCalled();
+      await expect(mockQueryUsers.mock.calls[0][0]).toHaveProperty('firstName', newQuery.firstName);
+      await expect(mockQueryUsers.mock.calls[0][0]).toHaveProperty('lastName', newQuery.lastName);
+      await expect(mockQueryUsers.mock.calls[0][0]).toHaveProperty('email', newQuery.email);
+      await expect(mockQueryUsers.mock.calls[0][1]).toHaveProperty('sortBy', newQuery.sortBy);
+      await expect(mockQueryUsers.mock.calls[0][1]).toHaveProperty('limit', newQuery.limit);
+      await expect(mockQueryUsers.mock.calls[0][1]).toHaveProperty('page', newQuery.page);
+      await expect(mockRes.send.mock.calls[0][0]).toStrictEqual({});
+      await expect(mockRes.status.mock.calls[0][0]).toStrictEqual(httpStatus.OK);
     });
   });
 });
