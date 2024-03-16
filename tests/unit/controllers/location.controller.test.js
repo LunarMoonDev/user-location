@@ -128,4 +128,37 @@ describe('Controller: locationController', () => {
       await expect(mockRes.status.mock.calls[0][0]).toStrictEqual(httpStatus.OK);
     });
   });
+
+  describe('deleteLocations method', () => {
+    let newQuery;
+
+    beforeEach(() => {
+      mockReq = httpMocks.createRequest();
+      mockRes = httpMocks.createResponse();
+
+      mockNext = jest.fn((x) => x);
+      mockRes.status = jest.fn(() => mockRes);
+      mockRes.send = jest.fn((x) => x);
+
+      newQuery = {
+        ids: [mongoose.Types.ObjectId().toString(), mongoose.Types.ObjectId().toString()],
+      };
+
+      mockReq.query = newQuery;
+    });
+
+    test('should call deleteLocations successfully when called with valid payload', async () => {
+      const mockDeleteLocations = jest
+        .spyOn(locationService, 'deleteLocations')
+        .mockImplementationOnce(() => Promise.resolve({ count: 1 }));
+      await expect(locationController.deleteLocations(mockReq, mockRes, mockNext)).toBeUndefined();
+
+      await expect(mockDeleteLocations).toHaveBeenCalled();
+      await expect(mockRes.status).toHaveBeenCalled();
+      await expect(mockRes.send).toHaveBeenCalled();
+      await expect(mockDeleteLocations.mock.calls[0][0]).toHaveProperty('ids', newQuery.ids);
+      await expect(mockRes.send.mock.calls[0][0]).toStrictEqual({ count: 1 });
+      await expect(mockRes.status.mock.calls[0][0]).toStrictEqual(httpStatus.OK);
+    });
+  });
 });
