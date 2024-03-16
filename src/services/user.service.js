@@ -1,5 +1,6 @@
 const httpStatus = require('http-status');
-const { User } = require('../models');
+const mongoose = require('mongoose');
+const { User, Location } = require('../models');
 const ApiError = require('../utils/ApiError');
 const locationService = require('./location.service');
 
@@ -9,6 +10,14 @@ const locationService = require('./location.service');
  * @returns {Promise<User>}
  */
 const createUser = async (userBody) => {
+  if (userBody.location) {
+    const session = await mongoose.startSession();
+    await session.withTransaction(async () => {
+      const { city, state } = userBody.location;
+      await Location.findOneAndUpdate({ city, state }, { $inc: { population: 1 } });
+    });
+  }
+
   if (await User.doesEmailExist(userBody.email)) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
   }
