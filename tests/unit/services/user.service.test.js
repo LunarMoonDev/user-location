@@ -3,8 +3,11 @@ const httpStatus = require('http-status');
 const mongoose = require('mongoose');
 const { userService, locationService } = require('../../../src/services');
 const { providerNames } = require('../../../src/config/providers');
-const { User } = require('../../../src/models');
+const { User, Location } = require('../../../src/models');
 const ApiError = require('../../../src/utils/ApiError');
+const setupTestDB = require('../../utils/setupTestDB');
+
+setupTestDB();
 
 describe('Service: userService', () => {
   let newUser;
@@ -31,28 +34,61 @@ describe('Service: userService', () => {
     });
 
     test('should create when the given user is valid', async () => {
+      const mockFindOneAndUpdate = jest
+        .spyOn(Location, 'findOneAndUpdate')
+        .mockImplementationOnce(() => Promise.resolve([]));
       const mockCreateUser = jest.spyOn(User, 'create').mockImplementationOnce(() => Promise.resolve(newUser));
       const mockDoesEmailExist = jest.spyOn(User, 'doesEmailExist').mockImplementationOnce(() => Promise.resolve(false));
       await expect(userService.createUser(newUser)).resolves.toStrictEqual(newUser);
       await expect(mockCreateUser).toHaveBeenCalled();
       await expect(mockDoesEmailExist).toHaveBeenCalled();
+      await expect(mockFindOneAndUpdate).not.toHaveBeenCalled();
+      await expect(mockDoesEmailExist.mock.calls[0][0]).toStrictEqual(newUser.email);
+    });
+
+    test('should create when the given user is valid with location', async () => {
+      const location = {
+        city: faker.location.city(),
+        state: faker.location.state(),
+      };
+      newUser.location = location;
+
+      const mockFindOneAndUpdate = jest
+        .spyOn(Location, 'findOneAndUpdate')
+        .mockImplementationOnce(() => Promise.resolve([]));
+      const mockCreateUser = jest.spyOn(User, 'create').mockImplementationOnce(() => Promise.resolve(newUser));
+      const mockDoesEmailExist = jest.spyOn(User, 'doesEmailExist').mockImplementationOnce(() => Promise.resolve(false));
+      await expect(userService.createUser(newUser)).resolves.toStrictEqual(newUser);
+      await expect(mockCreateUser).toHaveBeenCalled();
+      await expect(mockDoesEmailExist).toHaveBeenCalled();
+      await expect(mockFindOneAndUpdate).toHaveBeenCalled();
+      await expect(mockFindOneAndUpdate.mock.calls[0][0]).toEqual(location);
+      await expect(mockFindOneAndUpdate.mock.calls[0][1]).toEqual({ $inc: { population: 1 } });
       await expect(mockDoesEmailExist.mock.calls[0][0]).toStrictEqual(newUser.email);
     });
 
     test('should throw an error when error throws an error', async () => {
+      const mockFindOneAndUpdate = jest
+        .spyOn(Location, 'findOneAndUpdate')
+        .mockImplementationOnce(() => Promise.resolve([]));
       const error = new ApiError(httpStatus.NOT_ACCEPTABLE, 'unacceptable');
       const mockCreateUser = jest.spyOn(User, 'create').mockImplementationOnce(() => Promise.reject(error));
       const mockDoesEmailExist = jest.spyOn(User, 'doesEmailExist').mockImplementationOnce(() => Promise.resolve(false));
       await expect(userService.createUser(newUser)).rejects.toStrictEqual(error);
+      await expect(mockFindOneAndUpdate).not.toHaveBeenCalled();
       await expect(mockCreateUser).toHaveBeenCalled();
       await expect(mockDoesEmailExist).toHaveBeenCalled();
     });
 
     test('should email already exist when email exist in db', async () => {
+      const mockFindOneAndUpdate = jest
+        .spyOn(Location, 'findOneAndUpdate')
+        .mockImplementationOnce(() => Promise.resolve([]));
       const error = new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
       const mockCreateUser = jest.spyOn(User, 'create').mockImplementationOnce(() => Promise.resolve(newUser));
       const mockDoesEmailExist = jest.spyOn(User, 'doesEmailExist').mockImplementationOnce(() => Promise.resolve(true));
       await expect(userService.createUser(newUser)).rejects.toThrow(error);
+      await expect(mockFindOneAndUpdate).not.toHaveBeenCalled();
       await expect(mockCreateUser).not.toHaveBeenCalled();
       await expect(mockDoesEmailExist).toHaveBeenCalled();
     });

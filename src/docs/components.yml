@@ -9,6 +9,8 @@ components:
           type: string
         pop:
           type: number
+        population:
+          type: number
         state:
           type: string
         loc:

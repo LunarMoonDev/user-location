@@ -21,8 +21,15 @@ const updateLocation = catchAsync(async (req, res) => {
   res.status(httpStatus.OK).send(result);
 });
 
+const deleteLocations = catchAsync(async (req, res) => {
+  const filter = pick(req.query, ['ids']);
+  const result = await locationService.deleteLocations(filter);
+  res.status(httpStatus.OK).send(result);
+});
+
 module.exports = {
   createLocation,
   getLocations,
   updateLocation,
+  deleteLocations,
 };

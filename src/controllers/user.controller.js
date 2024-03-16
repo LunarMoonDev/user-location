@@ -5,7 +5,7 @@ const pick = require('../utils/pick');
 
 const createUser = catchAsync(async (req, res) => {
   const location = await locationService.findLocation(req.body.location, true);
-  req.body.location = location._id;
+  req.body.location = location;
   const user = await userService.createUser(req.body);
   user.location = location;
   res.status(httpStatus.CREATED).send(user);
