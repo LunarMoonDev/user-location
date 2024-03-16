@@ -42,6 +42,11 @@ const locationSchema = mongoose.Schema(
         message: 'loc must be an array of 2 containing latitude and longitude, -180 <= angle <= 180',
       },
     },
+    population: {
+      type: Number,
+      required: false,
+      default: 0,
+    },
   },
   {
     timestamps: true,
