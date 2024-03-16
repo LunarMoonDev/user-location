@@ -17,7 +17,15 @@ const updateUser = catchAsync(async (req, res) => {
   res.status(httpStatus.OK).send(result);
 });
 
+const getUsers = catchAsync(async (req, res) => {
+  const filter = pick(req.query, ['firstName', 'lastName', 'email']);
+  const options = pick(req.query, ['sortBy', 'limit', 'page']);
+  const result = await userService.queryUsers(filter, options);
+  res.status(httpStatus.OK).send(result);
+});
+
 module.exports = {
   createUser,
   updateUser,
+  getUsers,
 };
