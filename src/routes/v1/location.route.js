@@ -9,6 +9,7 @@ const router = express.Router();
 
 router.route('/').post(auth('manageLocs'), validate(locationValidation.createLocation), locationController.createLocation);
 router.route('/').get(auth('getLocs'), validate(locationValidation.getLocations), locationController.getLocations);
+router.route('/').delete(auth('manageLocs'), validate(commonValidation.deleteFilter), locationController.deleteLocations);
 router
   .route('/')
   .patch(
@@ -140,6 +141,39 @@ module.exports = router;
  *           application/json:
  *             schema:
  *                $ref: '#/components/schemas/Location'
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ *       "403":
+ *         $ref: '#/components/responses/Forbidden'
+ *
+ *   delete:
+ *     summary: Retrieve locations
+ *     description: API is paginated and any user can retrieve
+ *     tags: [Location]
+ *     security:
+ *       - oAuthSample:
+ *          - profile
+ *          - email
+ *     parameters:
+ *       - in: query
+ *         name: ids
+ *         schema:
+ *           type: array
+ *           items:
+ *             type: string
+ *             minlength: 1
+ *             maxlength: 25
+ *             format: byte
+ *     responses:
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 delCount:
+ *                   type: integer
  *       "401":
  *         $ref: '#/components/responses/Unauthorized'
  *       "403":
