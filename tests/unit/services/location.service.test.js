@@ -203,4 +203,26 @@ describe('Service: locationService', () => {
       await expect(mockPaginate).toHaveBeenCalled();
     });
   });
+
+  describe('deleteLocation method', () => {
+    let newFilter;
+
+    beforeEach(() => {
+      newFilter = {
+        ids: [mongoose.Types.ObjectId().toString(), mongoose.Types.ObjectId().toString()],
+      };
+    });
+
+    test('should delete locations with valid params', async () => {
+      const mockDeleteMany = jest
+        .spyOn(Location, 'deleteMany')
+        .mockImplementationOnce(() => Promise.resolve({ deletedCount: 1 }));
+      await expect(locationService.deleteLocations(newFilter)).resolves.toEqual({ count: 1 });
+      await expect(mockDeleteMany).toHaveBeenCalled();
+
+      const expectedFilter = JSON.parse(JSON.stringify(newFilter));
+      expectedFilter.ids.map((x) => mongoose.Types.ObjectId(x));
+      await expect(mockDeleteMany.mock.calls[0][0]).toEqual({ _id: { $in: expectedFilter.ids }, population: 0 });
+    });
+  });
 });

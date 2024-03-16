@@ -1,4 +1,5 @@
 const httpStatus = require('http-status');
+const mongoose = require('mongoose');
 const { Location } = require('../models');
 const ApiError = require('../utils/ApiError');
 
@@ -73,9 +74,21 @@ const updateLocation = async (filter, location) => {
   return loc;
 };
 
+/**
+ * Deletes a list of locations in the database
+ * @param {Array<import('mongoose').ObjectId} filter - list of location ids
+ * @returns {Object} - containing number of deletes locations
+ */
+const deleteLocations = async (filter) => {
+  filter.ids.map((x) => mongoose.Types.ObjectId(x));
+  const delObj = await Location.deleteMany({ _id: { $in: filter.ids }, population: 0 });
+  return { count: delObj.deletedCount };
+};
+
 module.exports = {
   createLocation,
   findLocation,
   queryLocations,
   updateLocation,
+  deleteLocations,
 };
