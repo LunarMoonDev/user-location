@@ -254,4 +254,85 @@ describe('Validation: userValidation', () => {
       await expect(error.details[0].message).toStrictEqual('"body" must have at least 1 key');
     });
   });
+
+  describe('getUsers validate', () => {
+    let mockReq;
+    let newQuery;
+
+    beforeEach(() => {
+      mockReq = httpMocks.createRequest();
+
+      newQuery = {
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        email: faker.internet.email(),
+        sortBy: 'field:asc',
+        limit: faker.number.int(),
+        page: faker.number.int(),
+      };
+
+      mockReq.query = newQuery;
+    });
+
+    test('should pass a valid req query', async () => {
+      const object = pick(mockReq, ['query']);
+      const { value, error } = Joi.compile(userValidation.getUsers).validate(object);
+      await expect(error).not.toBeTruthy();
+      await expect(value.query).toStrictEqual(newQuery);
+    });
+
+    test('should throw error if email is invalid', async () => {
+      const object = pick(mockReq, ['query']);
+      newQuery.email = 'email';
+      const { value, error } = Joi.compile(userValidation.getUsers).validate(object);
+      await expect(error).toBeTruthy();
+      await expect(error.details[0].message).toStrictEqual('"query.email" must be a valid email');
+    });
+
+    test('should throw error if firstName is beyond max length', async () => {
+      const object = pick(mockReq, ['query']);
+      newQuery.firstName = faker.string.alphanumeric({ length: 50 });
+      const { value, error } = Joi.compile(userValidation.getUsers).validate(object);
+      await expect(error).toBeTruthy();
+      await expect(error.details[0].message).toStrictEqual(
+        '"query.firstName" length must be less than or equal to 25 characters long'
+      );
+    });
+
+    test('should throw error if firstName is empty', async () => {
+      const object = pick(mockReq, ['query']);
+      newQuery.firstName = '';
+      const { value, error } = Joi.compile(userValidation.getUsers).validate(object);
+      await expect(error).toBeTruthy();
+      await expect(error.details[0].message).toStrictEqual('"query.firstName" is not allowed to be empty');
+    });
+
+    test('should throw error if lastName is beyond max length', async () => {
+      const object = pick(mockReq, ['query']);
+      newQuery.lastName = faker.string.alphanumeric({ length: 50 });
+      const { value, error } = Joi.compile(userValidation.getUsers).validate(object);
+      await expect(error).toBeTruthy();
+      await expect(error.details[0].message).toStrictEqual(
+        '"query.lastName" length must be less than or equal to 25 characters long'
+      );
+    });
+
+    test('should throw error if lastName is empty', async () => {
+      const object = pick(mockReq, ['query']);
+      newQuery.lastName = '';
+      const { value, error } = Joi.compile(userValidation.getUsers).validate(object);
+      await expect(error).toBeTruthy();
+      await expect(error.details[0].message).toStrictEqual('"query.lastName" is not allowed to be empty');
+    });
+
+    test('should throw error if email is beyond max length', async () => {
+      const object = pick(mockReq, ['query']);
+      newQuery.email = `${faker.string.alphanumeric({ length: 80 })}@gmail.com`;
+      const { value, error } = Joi.compile(userValidation.getUsers).validate(object);
+      await expect(error).toBeTruthy();
+      await expect(error.details[0].message).toStrictEqual(
+        '"query.email" length must be less than or equal to 40 characters long'
+      );
+    });
+  });
 });
