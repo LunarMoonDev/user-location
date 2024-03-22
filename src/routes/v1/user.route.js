@@ -9,6 +9,7 @@ const router = express.Router();
 
 router.route('/').post(auth('manageUsers'), validate(userValidation.createUser), userController.createUser);
 router.route('/').get(auth('getUsers'), validate(userValidation.getUsers), userController.getUsers);
+router.route('/').delete(auth('manageUsers'), validate(commonValidation.deleteFilter), userController.deleteUsers);
 router
   .route('/')
   .patch(
@@ -167,6 +168,39 @@ module.exports = router;
  *       "403":
  *         $ref: '#/components/responses/Forbidden'
  *
+ *   delete:
+ *     summary: delete users
+ *     description: deletes list of users in the database
+ *     tags: [User]
+ *     security:
+ *       - oAuthSample:
+ *          - profile
+ *          - email
+ *     parameters:
+ *       - in: query
+ *         name: ids
+ *         schema:
+ *           type: array
+ *           items:
+ *             type: string
+ *             minlength: 1
+ *             maxlength: 25
+ *             format: byte
+ *     responses:
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 count:
+ *                   type: integer
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ *       "403":
+ *         $ref: '#/components/responses/Forbidden'
+ *
  *   patch:
  *     summary: Update a User
  *     description: Only admins can update a user
@@ -204,6 +238,8 @@ module.exports = router;
  *                 type: string
  *                 minLength: 1
  *                 maxLength: 25
+ *               isDisabled:
+ *                 type: boolean
  *               role:
  *                 type: string
  *                 enum: [user, admin]
@@ -225,6 +261,7 @@ module.exports = router;
  *               firstName: harjit
  *               lastName: brar
  *               role: admin
+ *               isDisabled: true
  *               email: harjitbrar07@gmail.com
  *               location:
  *                 city: "quezon"
