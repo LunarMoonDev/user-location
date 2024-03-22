@@ -26,6 +26,7 @@ describe('Service: authService', () => {
         lastName: faker.person.lastName(),
         role: 'user',
         account: newAccount,
+        isDisabled: false,
       };
 
       tokens = {
@@ -91,6 +92,7 @@ describe('Service: authService', () => {
       // creating expected
       const expected = JSON.parse(JSON.stringify(userDup));
       expected.account = newUser.account;
+      expected.isDisabled = false;
 
       await expect(authService.createOrUpdateUserTokens(newUser, filter, tokens)).resolves.toBeUndefined();
       await expect(mockGetUserByProviderAndSubject).toHaveBeenCalled();
@@ -114,6 +116,25 @@ describe('Service: authService', () => {
       await expect(mockGetUserByProviderAndSubject).toHaveBeenCalled();
       await expect(mockCreateUser).not.toHaveBeenCalled();
       await expect(mockFindUserAndUpdate).not.toHaveBeenCalled();
+    });
+
+    test('should updating when user exist and accessToken is the same but disabled', async () => {
+      const mockGetUserByProviderAndSubject = jest
+        .spyOn(userService, 'getUserByProviderAndSubject')
+        .mockImplementationOnce(() => Promise.resolve(newUser));
+      const mockCreateUser = jest.spyOn(userService, 'createUser').mockImplementationOnce(() => Promise.resolve());
+      const mockFindUserAndUpdate = jest
+        .spyOn(userService, 'findUserAndUpdate')
+        .mockImplementationOnce(() => Promise.resolve());
+
+      newUser.isDisabled = true;
+      tokens.accessToken = newAccount.accessToken;
+
+      await expect(authService.createOrUpdateUserTokens(newUser, filter, tokens)).resolves.toBeUndefined();
+      await expect(mockGetUserByProviderAndSubject).toHaveBeenCalled();
+      await expect(mockCreateUser).not.toHaveBeenCalled();
+      await expect(mockFindUserAndUpdate).toHaveBeenCalled();
+      await expect(mockFindUserAndUpdate.mock.calls[0][1].isDisabled).not.toBeTruthy();
     });
   });
 

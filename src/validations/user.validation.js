@@ -35,6 +35,7 @@ const updateUser = {
       lastName: Joi.string().min(1).max(25),
       email: Joi.string().max(40).email(),
       role: Joi.string().valid(...roles),
+      isDisabled: Joi.boolean(),
       location: Joi.object().keys({
         city: Joi.string().min(1).max(25).required(),
         state: Joi.string().min(1).max(25).required(),

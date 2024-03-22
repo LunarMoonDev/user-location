@@ -154,6 +154,7 @@ describe('Validation: userValidation', () => {
         firstName: faker.person.firstName(),
         lastName: faker.person.lastName(),
         email: faker.internet.email(),
+        isDisabled: false,
         location: {
           city: faker.location.city(),
           state: faker.location.state(),
@@ -163,9 +164,9 @@ describe('Validation: userValidation', () => {
       mockReq.body = newUser;
     });
 
-    test('should pass a valida req body', async () => {
+    test('should pass a valid req body', async () => {
       const object = pick(mockReq, ['body']);
-      const { value, error } = Joi.compile(userValidation.createUser).validate(object);
+      const { value, error } = Joi.compile(userValidation.updateUser).validate(object);
       await expect(error).not.toBeTruthy();
       await expect(value.body).toStrictEqual(newUser);
     });
@@ -173,7 +174,7 @@ describe('Validation: userValidation', () => {
     test('should throw error if email is invalid', async () => {
       const object = pick(mockReq, ['body']);
       newUser.email = 'email';
-      const { value, error } = Joi.compile(userValidation.createUser).validate(object);
+      const { value, error } = Joi.compile(userValidation.updateUser).validate(object);
       await expect(error).toBeTruthy();
       await expect(error.details[0].message).toStrictEqual('"body.email" must be a valid email');
     });
@@ -181,7 +182,7 @@ describe('Validation: userValidation', () => {
     test('should throw error if location is invalid', async () => {
       const object = pick(mockReq, ['body']);
       newUser.location = 'location';
-      const { value, error } = Joi.compile(userValidation.createUser).validate(object);
+      const { value, error } = Joi.compile(userValidation.updateUser).validate(object);
       await expect(error).toBeTruthy();
       await expect(error.details[0].message).toStrictEqual('"body.location" must be of type object');
     });
@@ -189,7 +190,7 @@ describe('Validation: userValidation', () => {
     test('should throw error if location.city is missing', async () => {
       const object = pick(mockReq, ['body']);
       delete newUser.location.city;
-      const { value, error } = Joi.compile(userValidation.createUser).validate(object);
+      const { value, error } = Joi.compile(userValidation.updateUser).validate(object);
       await expect(error).toBeTruthy();
       await expect(error.details[0].message).toStrictEqual('"body.location.city" is required');
     });
@@ -197,7 +198,7 @@ describe('Validation: userValidation', () => {
     test('should throw error if location.state is missing', async () => {
       const object = pick(mockReq, ['body']);
       delete newUser.location.state;
-      const { value, error } = Joi.compile(userValidation.createUser).validate(object);
+      const { value, error } = Joi.compile(userValidation.updateUser).validate(object);
       await expect(error).toBeTruthy();
       await expect(error.details[0].message).toStrictEqual('"body.location.state" is required');
     });
@@ -205,7 +206,7 @@ describe('Validation: userValidation', () => {
     test('should throw error if user.firstName is beyond max length', async () => {
       const object = pick(mockReq, ['body']);
       newUser.firstName = faker.string.alphanumeric({ length: 50 });
-      const { value, error } = Joi.compile(userValidation.createUser).validate(object);
+      const { value, error } = Joi.compile(userValidation.updateUser).validate(object);
       await expect(error).toBeTruthy();
       await expect(error.details[0].message).toStrictEqual(
         '"body.firstName" length must be less than or equal to 25 characters long'
@@ -215,7 +216,7 @@ describe('Validation: userValidation', () => {
     test('should throw error if user.firstName is empty', async () => {
       const object = pick(mockReq, ['body']);
       newUser.firstName = '';
-      const { value, error } = Joi.compile(userValidation.createUser).validate(object);
+      const { value, error } = Joi.compile(userValidation.updateUser).validate(object);
       await expect(error).toBeTruthy();
       await expect(error.details[0].message).toStrictEqual('"body.firstName" is not allowed to be empty');
     });
@@ -223,7 +224,7 @@ describe('Validation: userValidation', () => {
     test('should throw error if user.lastName is beyond max length', async () => {
       const object = pick(mockReq, ['body']);
       newUser.lastName = faker.string.alphanumeric({ length: 50 });
-      const { value, error } = Joi.compile(userValidation.createUser).validate(object);
+      const { value, error } = Joi.compile(userValidation.updateUser).validate(object);
       await expect(error).toBeTruthy();
       await expect(error.details[0].message).toStrictEqual(
         '"body.lastName" length must be less than or equal to 25 characters long'
@@ -233,7 +234,7 @@ describe('Validation: userValidation', () => {
     test('should throw error if user.lastName is empty', async () => {
       const object = pick(mockReq, ['body']);
       newUser.lastName = '';
-      const { value, error } = Joi.compile(userValidation.createUser).validate(object);
+      const { value, error } = Joi.compile(userValidation.updateUser).validate(object);
       await expect(error).toBeTruthy();
       await expect(error.details[0].message).toStrictEqual('"body.lastName" is not allowed to be empty');
     });
@@ -241,7 +242,7 @@ describe('Validation: userValidation', () => {
     test('should throw error if user.email is beyond max length', async () => {
       const object = pick(mockReq, ['body']);
       newUser.email = `${faker.string.alphanumeric({ length: 80 })}@gmail.com`;
-      const { value, error } = Joi.compile(userValidation.createUser).validate(object);
+      const { value, error } = Joi.compile(userValidation.updateUser).validate(object);
       await expect(error).toBeTruthy();
       await expect(error.details[0].message).toStrictEqual(
         '"body.email" length must be less than or equal to 40 characters long'
@@ -252,6 +253,14 @@ describe('Validation: userValidation', () => {
       const { value, error } = Joi.compile(userValidation.updateUser).validate({ body: {} });
       await expect(error).toBeTruthy();
       await expect(error.details[0].message).toStrictEqual('"body" must have at least 1 key');
+    });
+
+    test('should throw error if user.isDisabled is invalid', async () => {
+      const object = pick(mockReq, ['body']);
+      newUser.isDisabled = 'asdf';
+      const { value, error } = Joi.compile(userValidation.updateUser).validate(object);
+      await expect(error).toBeTruthy();
+      await expect(error.details[0].message).toStrictEqual('"body.isDisabled" must be a boolean');
     });
   });
 
