@@ -45,6 +45,10 @@ const userSchema = mongoose.Schema(
       enum: roles,
       default: 'user',
     },
+    isDisabled: {
+      type: Boolean,
+      default: false,
+    },
     account: {
       type: accountSchema,
     },

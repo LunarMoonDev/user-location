@@ -26,6 +26,7 @@ describe('Model: User', () => {
         email: faker.internet.email(),
         location: mongoose.Types.ObjectId(),
         account: newAccount,
+        isDisabled: true,
       };
     });
 
@@ -70,6 +71,11 @@ describe('Model: User', () => {
 
     test('should throw a validation error if email is beyond max length', async () => {
       newUser.email = `${faker.string.alphanumeric({ length: 80 })}@gmail.com`;
+      await expect(new User(newUser).validate()).rejects.toThrow();
+    });
+
+    test('should throw a validation error if isDisabled is invalid', async () => {
+      newUser.isDisabled = `slakfghglasfjhg`;
       await expect(new User(newUser).validate()).rejects.toThrow();
     });
   });
