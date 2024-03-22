@@ -4,6 +4,9 @@ const mongoose = require('mongoose');
 const { locationService } = require('../../../src/services');
 const { Location } = require('../../../src/models');
 const ApiError = require('../../../src/utils/ApiError');
+const setupTestDB = require('../../utils/setupTestDB');
+
+setupTestDB();
 
 describe('Service: locationService', () => {
   describe('createLocation method', () => {

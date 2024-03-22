@@ -144,4 +144,34 @@ describe('Controller: userController', () => {
       await expect(mockRes.status.mock.calls[0][0]).toStrictEqual(httpStatus.OK);
     });
   });
+
+  describe('deleteUsers method', () => {
+    let newQuery;
+
+    beforeEach(() => {
+      mockReq = httpMocks.createRequest();
+      mockRes = httpMocks.createResponse();
+      mockNext = jest.fn((x) => x);
+      mockRes.status = jest.fn(() => mockRes);
+      mockRes.send = jest.fn((x) => mockRes);
+
+      newQuery = {
+        ids: [mongoose.Types.ObjectId(), mongoose.Types.ObjectId()],
+      };
+
+      mockReq.query = newQuery;
+    });
+
+    test('should send CREATED status when params are valid', async () => {
+      const mockDeleteUsers = jest
+        .spyOn(userService, 'deleteUsers')
+        .mockImplementationOnce(() => Promise.resolve({ count: 0 }));
+      await expect(userController.deleteUsers(mockReq, mockRes, mockNext)).toBeUndefined();
+      await expect(mockDeleteUsers).toHaveBeenCalled();
+      await expect(mockRes.send).toHaveBeenCalled();
+      await expect(mockRes.status.mock.calls[0][0]).toEqual(httpStatus.OK);
+      await expect(mockDeleteUsers.mock.calls[0][0]).toEqual(newQuery); // error handling must be active here
+      await expect(mockRes.send.mock.calls[0][0]).toEqual({ count: 0 });
+    });
+  });
 });

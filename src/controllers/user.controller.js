@@ -24,8 +24,15 @@ const getUsers = catchAsync(async (req, res) => {
   res.status(httpStatus.OK).send(result);
 });
 
+const deleteUsers = catchAsync(async (req, res) => {
+  const filter = pick(req.query, ['ids']);
+  const result = await userService.deleteUsers(filter);
+  res.status(httpStatus.OK).send(result);
+});
+
 module.exports = {
   createUser,
   updateUser,
   getUsers,
+  deleteUsers,
 };

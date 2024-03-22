@@ -13,7 +13,14 @@ const createLocation = async (location) => {
   if (await Location.doesLocationExist(city, state)) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Location already exist');
   }
-  return Location.create(location);
+
+  let createdUser;
+  const session = await mongoose.startSession();
+  await session.withTransaction(async () => {
+    createdUser = await Location.create(location);
+  });
+
+  return createdUser;
 };
 
 /**
@@ -67,7 +74,11 @@ const updateLocation = async (filter, location) => {
     }
   }
 
-  loc = await Location.findOneAndUpdate({ _id: filter.id }, location, { new: true });
+  const session = await mongoose.startSession();
+  await session.withTransaction(async () => {
+    loc = await Location.findOneAndUpdate({ _id: filter.id }, location, { new: true });
+  });
+
   if (!loc) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Location does not exist');
   }
@@ -81,7 +92,13 @@ const updateLocation = async (filter, location) => {
  */
 const deleteLocations = async (filter) => {
   filter.ids.map((x) => mongoose.Types.ObjectId(x));
-  const delObj = await Location.deleteMany({ _id: { $in: filter.ids }, population: 0 });
+  const session = await mongoose.startSession();
+
+  let delObj;
+  await session.withTransaction(async () => {
+    delObj = await Location.deleteMany({ _id: { $in: filter.ids }, population: 0 });
+  });
+
   return { count: delObj.deletedCount };
 };
 

@@ -13,8 +13,9 @@ const createOrUpdateUserTokens = async (user, filter, tokens) => {
   const currUser = await userService.getUserByProviderAndSubject(provider, subject);
   if (!currUser) {
     await userService.createUser(user);
-  } else if (currUser.account.accessToken !== accessToken) {
+  } else if (currUser.account.accessToken !== accessToken || currUser.isDisabled) {
     currUser.account = user.account;
+    currUser.isDisabled = false;
     await userService.findUserAndUpdate(filter, currUser);
   }
 };
