@@ -147,8 +147,8 @@ module.exports = router;
  *         $ref: '#/components/responses/Forbidden'
  *
  *   delete:
- *     summary: Retrieve locations
- *     description: API is paginated and any user can retrieve
+ *     summary: delete locations
+ *     description: deletes list of locations in the database
  *     tags: [Location]
  *     security:
  *       - oAuthSample:
@@ -172,7 +172,7 @@ module.exports = router;
  *             schema:
  *               type: object
  *               properties:
- *                 delCount:
+ *                 count:
  *                   type: integer
  *       "401":
  *         $ref: '#/components/responses/Unauthorized'
