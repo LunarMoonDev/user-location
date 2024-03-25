@@ -17,11 +17,7 @@ const envVarsSchema = Joi.object()
     CACHE_HOST: Joi.string().required().required().description('Cache host url'),
     CACHE_PORT: Joi.number().required().description('port of the cacher server'),
     CACHE_SECRET: Joi.string().required().description('secret key for session'),
-    SMTP_HOST: Joi.string().description('server that will send the emails'),
-    SMTP_PORT: Joi.number().description('port to connect to the email server'),
-    SMTP_USERNAME: Joi.string().description('username for email server'),
-    SMTP_PASSWORD: Joi.string().description('password for email server'),
-    EMAIL_FROM: Joi.string().description('the from field in the emails sent by the app'),
+    ENCRYPT_SECRET: Joi.string().required().description('secret key for encryption in mongoose'),
   })
   .unknown();
 
@@ -41,6 +37,9 @@ module.exports = {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     },
+    encrypt: {
+      secret: envVars.ENCRYPT_SECRET,
+    },
   },
   oauth: {
     clientID: envVars.OAUTH_CLIENT_ID,
@@ -55,16 +54,5 @@ module.exports = {
     host: envVars.CACHE_HOST,
     port: envVars.CACHE_PORT,
     secret: envVars.CACHE_SECRET,
-  },
-  email: {
-    smtp: {
-      host: envVars.SMTP_HOST,
-      port: envVars.SMTP_PORT,
-      auth: {
-        user: envVars.SMTP_USERNAME,
-        pass: envVars.SMTP_PASSWORD,
-      },
-    },
-    from: envVars.EMAIL_FROM,
   },
 };
