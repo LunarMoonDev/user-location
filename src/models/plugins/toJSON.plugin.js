@@ -27,12 +27,15 @@ const toJSON = (schema) => {
           deleteAtPath(ret, path.split('.'), 0);
         }
       });
-
       ret.id = ret._id.toString();
       delete ret._id;
       delete ret.__v;
       delete ret.createdAt;
       delete ret.updatedAt;
+      delete ret.accessToken;
+      delete ret.refreshToken;
+      delete ret.__enc_accessToken;
+      delete ret.__enc_refreshToken;
       if (transform) {
         return transform(doc, ret, options);
       }
