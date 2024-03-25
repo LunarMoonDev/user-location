@@ -193,6 +193,15 @@ describe('Service: userService', () => {
       await expect(mockFindOneAndUpdate).toHaveBeenCalled();
       await expect(mockDoesEmailExist).toHaveBeenCalled();
       await expect(mockDoesEmailExist.mock.calls[0][0]).toStrictEqual(newUser.email);
+
+      const expected = {
+        'account.accountToken': newUser.account.accessToken,
+        'account.refreshToken': newUser.account.refreshToken,
+        'account.__enc_accountToken': false,
+        'account.__enc_refreshToken': false,
+      };
+
+      await expect(mockFindOneAndUpdate.mock.calls[0][1].$set).toStrictEqual(expected);
     });
 
     test("should return empty when it doesn't in database", async () => {
