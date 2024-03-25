@@ -70,6 +70,9 @@ describe('Service: authService', () => {
       await expect(mockGetUserByProviderAndSubject).toHaveBeenCalled();
       await expect(mockCreateUser).not.toHaveBeenCalled();
       await expect(mockFindUserAndUpdate).toHaveBeenCalled();
+      await expect(mockFindUserAndUpdate.mock.calls[0][1].account).toHaveProperty('__enc_accessToken', false);
+      await expect(mockFindUserAndUpdate.mock.calls[0][1].account).toHaveProperty('__enc_refreshToken', false);
+      await expect(mockFindUserAndUpdate.mock.calls[0][1]).toHaveProperty('isDisabled', false);
     });
 
     test('should update only the tokens of the user', async () => {
