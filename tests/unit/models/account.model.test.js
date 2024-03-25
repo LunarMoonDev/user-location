@@ -2,6 +2,9 @@ const { faker } = require('@faker-js/faker');
 const mongoose = require('mongoose');
 const { Account } = require('../../../src/models');
 const { providerNames } = require('../../../src/config/providers');
+const setupTestDB = require('../../utils/setupTestDB');
+
+setupTestDB();
 
 describe('Model: Account', () => {
   const AccountModel = mongoose.model('Account', Account);
@@ -44,10 +47,16 @@ describe('Model: Account', () => {
         expireData: 1707912638,
         createdAt: '02-01-2023',
         updatedAt: '02-01-2024',
+        __enc_accessToken: false,
+        __enc_refreshToken: false,
       };
 
       expect(new AccountModel(newAccount2).toJSON()).not.toHaveProperty('createdAt');
       expect(new AccountModel(newAccount2).toJSON()).not.toHaveProperty('updatedAt');
+      expect(new AccountModel(newAccount2).toJSON()).not.toHaveProperty('accessToken');
+      expect(new AccountModel(newAccount2).toJSON()).not.toHaveProperty('refreshToken');
+      expect(new AccountModel(newAccount2).toJSON()).not.toHaveProperty('__enc_accessToken');
+      expect(new AccountModel(newAccount2).toJSON()).not.toHaveProperty('__enc_refreshToken');
     });
   });
 });

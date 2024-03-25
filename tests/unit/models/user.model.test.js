@@ -4,6 +4,9 @@ const httpStatus = require('http-status');
 const { User } = require('../../../src/models');
 const { providerNames } = require('../../../src/config/providers');
 const ApiError = require('../../../src/utils/ApiError');
+const setupTestDB = require('../../utils/setupTestDB');
+
+setupTestDB();
 
 describe('Model: User', () => {
   describe('User validation', () => {
@@ -145,6 +148,38 @@ describe('Model: User', () => {
       await expect(User.doesEmailExist(newUser.email, ['user1', 'user2'])).rejects.toThrow(error);
       await expect(mockFindOne).toHaveBeenCalled();
       await expect(mockFindOne.mock.calls[0][0]).toStrictEqual({ email: newUser.email, _id: { $ne: ['user1', 'user2'] } });
+    });
+  });
+
+  describe('Account encryption', () => {
+    let newUser;
+    let newAccount;
+
+    beforeEach(() => {
+      newAccount = {
+        provider: providerNames.GOOGLE,
+        subject: '104604077708513089592',
+        accessToken: faker.string.alphanumeric({ length: 218 }),
+        refreshToken: faker.string.alphanumeric({ length: 218 }),
+        expireDate: 1707912638,
+      };
+
+      newUser = {
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        role: 'user',
+        email: faker.internet.email(),
+        location: mongoose.Types.ObjectId(),
+        account: newAccount,
+      };
+    });
+
+    test('should encrypt accessToken and refreshToken', async () => {
+      const user = await User.create(newUser);
+      await expect(user.account.accessToken).not.toEqual(newUser.account.accessToken);
+      await expect(user.account.refreshToken).not.toEqual(newUser.account.refreshToken);
+      await expect(user.account).toHaveProperty('__enc_accessToken', true);
+      await expect(user.account).toHaveProperty('__enc_refreshToken', true);
     });
   });
 });

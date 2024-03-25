@@ -2,7 +2,6 @@ const httpStatus = require('http-status');
 const mongoose = require('mongoose');
 const { User, Location } = require('../models');
 const ApiError = require('../utils/ApiError');
-const locationService = require('./location.service');
 
 /**
  * Create a user
@@ -51,12 +50,23 @@ const findUserAndUpdate = async (filter, user) => {
     throw new ApiError(httpStatus.BAD_REQUEST, 'User does not exist');
   }
 
+  const updateObj = {
+    $set: {
+      'account.accountToken': user.account.accessToken,
+      'account.refreshToken': user.account.refreshToken,
+      'account.__enc_accountToken': false,
+      'account.__enc_refreshToken': false,
+    },
+  };
+
   let updatedUser;
   const session = await mongoose.startSession();
   await session.withTransaction(async () => {
-    updatedUser = await User.findOneAndUpdate({ 'account.provider': provider, 'account.subject': subject, email }, user);
+    updatedUser = await User.findOneAndUpdate(
+      { 'account.provider': provider, 'account.subject': subject, email },
+      updateObj
+    );
   });
-
   return updatedUser;
 };
 

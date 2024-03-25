@@ -16,6 +16,8 @@ const createOrUpdateUserTokens = async (user, filter, tokens) => {
   } else if (currUser.account.accessToken !== accessToken || currUser.isDisabled) {
     currUser.account = user.account;
     currUser.isDisabled = false;
+    currUser.account.__enc_accessToken = false;
+    currUser.account.__enc_refreshToken = false;
     await userService.findUserAndUpdate(filter, currUser);
   }
 };
