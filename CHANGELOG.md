@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/LunarMoonDev/user-location/compare/v1.0.1...v1.0.2) (2024-03-29)
+
+
+### Bug Fixes
+
+* followed github docs for proper publish workflow [10029] ([2e559dc](https://github.com/LunarMoonDev/user-location/commit/2e559dc9f792a1368d1ea262e0105e0a632e3729))
+
 ## [1.0.1](https://github.com/LunarMoonDev/user-location/compare/v1.0.0...v1.0.1) (2024-03-29)
 
 
