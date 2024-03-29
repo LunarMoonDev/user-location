@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/LunarMoonDev/user-location/compare/v1.0.2...v1.0.3) (2024-03-29)
+
+
+### Bug Fixes
+
+* typo on env.REGISTRY in publish yaml [10029] ([#22](https://github.com/LunarMoonDev/user-location/issues/22)) ([806ece7](https://github.com/LunarMoonDev/user-location/commit/806ece77cd3057f72ca961e038a854770c95de6e))
+
 ## [1.0.2](https://github.com/LunarMoonDev/user-location/compare/v1.0.1...v1.0.2) (2024-03-29)
 
 
