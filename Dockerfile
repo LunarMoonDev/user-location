@@ -13,3 +13,7 @@ RUN yarn install --pure-lockfile
 COPY --chown=node:node . .
 
 EXPOSE 3000
+
+ENTRYPOINT [ "yarn" ]
+# dev for now since we got no deployment to prod
+CMD [ "dev" ]
