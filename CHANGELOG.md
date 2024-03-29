@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/LunarMoonDev/user-location/compare/v1.0.0...v1.0.1) (2024-03-29)
+
+
+### Bug Fixes
+
+* made tags a multiline string in the yaml [10029] ([0ce6391](https://github.com/LunarMoonDev/user-location/commit/0ce6391fb84e702ef713a486ba73976cd982bfa4))
+
 ## 1.0.0 (2024-03-29)
 
 
