@@ -31,11 +31,8 @@
       <a href="#getting-started">Getting Started</a>
       <ul>
         <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
-    <li><a href="#usage">Coding usage</a></li>
-    <li><a href="#roadmap">Recommendations</a></li>
   </ol>
 </details>
 
