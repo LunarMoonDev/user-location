@@ -1,4 +1,5 @@
-[![LinkedIn][linkedin-shield]][linkedin-url]
+[![LinkedIn][linkedin-shield]](www.linkedin.com/in/harjit-brar)
+[![Trello][Trello]](https://trello.com/b/CqcoYlXz/toy-project-user-location)
 
 
 <!-- PROJECT LOGO -->
@@ -73,3 +74,8 @@ Redis must also be `UP` before running the server. To do so, please do the follo
   ```sh
   sudo /etc/init.d/redis-server start
   ```
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[Trello]: https://img.shields.io/badge/Trello-%23026AA7.svg?style=for-the-badge&logo=Trello&logoColor=white
